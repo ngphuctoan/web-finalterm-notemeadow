@@ -1,4 +1,5 @@
 .env
 backend/vendor
+frontend/.parcel-cache
 frontend/dist
 frontend/node_modules
