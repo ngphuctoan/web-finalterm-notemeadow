@@ -1,0 +1,27 @@
+services:
+  mysql:
+    image: mysql:lts
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./backend/db/note_management.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+      - MYSQL_DATABASE=note_management
+      - MYSQL_ALLOW_EMPTY_PASSWORD=yes
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - 8081:80
+    environment:
+      - PMA_HOST=mysql
+  
+  backend:
+    build: ./backend
+    ports:
+      - 8080:80
+    volumes:
+      - ./backend:/var/www/html
+
+volumes:
+  mysql_data:

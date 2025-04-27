@@ -1,0 +1,19 @@
+{
+    "name": "note-app",
+    "version": "1.0.0",
+    "type": "module",
+    "source": "src/**/*.pug",
+    "scripts": {
+        "start": "parcel"
+    },
+    "devDependencies": {
+        "@parcel/transformer-pug": "^2.14.4",
+        "@tailwindcss/postcss": "^4.1.4"
+    },
+    "dependencies": {
+        "alpinejs": "^3.14.9",
+        "parcel": "^2.14.4",
+        "pinecone-router": "^7.0.3",
+        "postcss": "^8.5.3"
+    }
+}
