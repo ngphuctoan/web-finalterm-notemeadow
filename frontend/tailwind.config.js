@@ -4,7 +4,7 @@ export default {
     theme: {
         extend: {
             colors: {
-                primary: colors.cyan["600"]
+                primary: colors.yellow["700"]
             }
         }
     }

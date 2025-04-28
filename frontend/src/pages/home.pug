@@ -1,0 +1,133 @@
+doctype html
+head
+  meta(charset='UTF-8')
+  meta(name='viewport' content='width=device-width, initial-scale=1')
+  title Note App
+  script(src='https://cdn.tailwindcss.com')
+  script(src='https://unpkg.com/alpinejs' defer='')
+  script.
+    tailwind.config = { darkMode: 'class' }
+  style.
+    body {
+    transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    .dark .bg-white {
+    background-color: #1f2937;
+    }
+    input, button {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+    }
+// Topbar
+.flex.items-center.justify-between.p-4.bg-white.shadow(class='dark:bg-gray-900')
+  .text-xl.font-bold Note App
+  .flex.items-center.space-x-4
+    input.border.rounded.px-4.py-2.w-72.bg-gray-50(type='text' placeholder='Search...' class='dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400')
+    .relative(x-data='{ open: false }')
+      // <button @click="open = !open" class="text-gray-600 dark:text-gray-200 hover:text-blue-500 dark:hover:text-blue-400">Settings</button>
+      // <div x-show="open" @click.outside="open = false" class="absolute right-0 mt-2 bg-white dark:bg-gray-900 border dark:border-gray-700 rounded shadow w-40">
+      button.block.w-full.text-left.px-4.py-2.text-gray-700(@click='toggleDarkMode()' class='hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-200') Toggle Theme
+      // </div>
+// Main content
+.flex.p-4.space-x-4
+  // Sidebar
+  .w-64.bg-white.rounded-lg.shadow.p-4.flex.flex-col.justify-between(class='dark:bg-gray-900')
+    div
+      h2.text-lg.font-semibold.mb-4.text-gray-900(class='dark:text-gray-100') Tags
+      .space-y-2
+        template(x-for='tag in tags' :key='tag')
+          .border.p-2.rounded.bg-gray-50.text-gray-700(class='dark:border-gray-700 dark:bg-gray-800 dark:text-gray-200' x-text='tag')
+    .mt-6
+      button.w-full.bg-blue-600.text-white.py-2.rounded.transition-colors(@click='showModal = true' class='hover:bg-blue-700') Add Tag
+  // Notes Section
+  .flex-1.flex.flex-col.space-y-6
+    // Sort by
+    .flex.justify-end
+      button.border.px-4.py-2.rounded.text-gray-700.transition-colors(class='dark:text-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-800') Sort by
+    // Pinned notes
+    div
+      h2.text-xl.font-semibold.mb-4.text-gray-900(class='dark:text-gray-100') Pinned
+      .grid.grid-cols-1.gap-4(class='sm:grid-cols-2 md:grid-cols-3')
+        template(x-for='(note, index) in pinnedNotes' :key="'pinned-'+index")
+          .bg-white.p-4.rounded-lg.shadow.cursor-move.transition-shadow(draggable='true' @dragstart='dragStart(note)' @dragover.prevent='' @drop='drop(note)' class='dark:bg-gray-900 hover:shadow-md')
+            .flex.justify-between
+              h3.font-bold.mb-2.text-gray-900(class='dark:text-gray-100' x-text='note.title')
+              button.text-yellow-500.text-xl(@click='togglePin(note)' class='hover:text-yellow-600') &starf;
+            .text-sm.text-gray-500.mb-2(class='dark:text-gray-400' x-text="'[' + note.tag + ']'")
+            p.text-gray-700.truncate.overflow-hidden.whitespace-nowrap(class='dark:text-gray-200' x-text='note.content')
+    // Unpinned notes
+    div
+      h2.text-xl.font-semibold.mb-4.text-gray-900(class='dark:text-gray-100') Others
+      .grid.grid-cols-1.gap-4(class='sm:grid-cols-2 md:grid-cols-3')
+        template(x-for='(note, index) in unpinnedNotes' :key="'unpinned-'+index")
+          .bg-white.p-4.rounded-lg.shadow.cursor-move.transition-shadow(draggable='true' @dragstart='dragStart(note)' @dragover.prevent='' @drop='drop(note)' class='dark:bg-gray-900 hover:shadow-md')
+            .flex.justify-between
+              h3.font-bold.mb-2.text-gray-900(class='dark:text-gray-100' x-text='note.title')
+              button.text-gray-400.text-xl(@click='togglePin(note)' class='hover:text-yellow-400') &star;
+            .text-sm.text-gray-500.mb-2(class='dark:text-gray-400' x-text="'[' + note.tag + ']'")
+            p.text-gray-700.truncate.overflow-hidden.whitespace-nowrap(class='dark:text-gray-200' x-text='note.content')
+// Modal Add Tag
+.fixed.inset-0.flex.items-center.justify-center.bg-black.bg-opacity-50(x-show='showModal')
+  .bg-white.p-6.rounded-lg.shadow(class='w-1/3 dark:bg-gray-900')
+    h2.text-xl.font-bold.mb-4.text-gray-900(class='dark:text-gray-100') Add New Tag
+    input.border.rounded.w-full.p-2.mb-4.bg-gray-50(type='text' x-model='newTag' class='dark:bg-gray-800 dark:text-gray-100 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-400' placeholder='Enter tag name')
+    .flex.justify-end.space-x-2
+      button.px-4.py-2.bg-gray-200.rounded.transition-colors(@click='showModal = false' class='dark:bg-gray-700 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600') Cancel
+      button.px-4.py-2.bg-blue-600.text-white.rounded.transition-colors(@click='addTag()' class='hover:bg-blue-700') Add
+// Alpine.js Logic
+script.
+  function noteApp() {
+  return {
+  darkMode: JSON.parse(localStorage.getItem('darkMode')) ?? false,
+  showModal: false,
+  newTag: '',
+  draggedNote: null,
+  tags: JSON.parse(localStorage.getItem('tags')) ?? ['tag-1', 'tag-2'],
+  notes: JSON.parse(localStorage.getItem('notes')) ?? [
+  { title: 'Note 1', tag: 'tag-1', content: 'This is a pinned note', pinned: true },
+  { title: 'Note 2', tag: 'tag-2', content: 'This is another note and very much note for u This is another note and very much note for u This is another note and very much note for u This is another note and very much note for u', pinned: false },
+  { title: 'Note 3', tag: 'tag-1', content: 'More content here', pinned: false }
+  ],
+  get pinnedNotes() {
+  return this.notes.filter(n => n.pinned);
+  },
+  get unpinnedNotes() {
+  return this.notes.filter(n => !n.pinned);
+  },
+  addTag() {
+  if (this.newTag.trim() !== '' && !this.tags.includes(this.newTag.trim())) {
+  this.tags.push(this.newTag.trim());
+  this.saveData();
+  }
+  this.newTag = '';
+  this.showModal = false;
+  },
+  toggleDarkMode() {
+  this.darkMode = !this.darkMode;
+  localStorage.setItem('darkMode', this.darkMode);
+  },
+  togglePin(note) {
+  note.pinned = !note.pinned;
+  this.saveData();
+  },
+  dragStart(note) {
+  this.draggedNote = note;
+  },
+  drop(targetNote) {
+  if (!this.draggedNote || this.draggedNote === targetNote) return;
+  const from = this.notes.indexOf(this.draggedNote);
+  const to = this.notes.indexOf(targetNote);
+  this.notes.splice(from, 1);
+  this.notes.splice(to, 0, this.draggedNote);
+  this.draggedNote = null;
+  this.saveData();
+  },
+  saveData() {
+  localStorage.setItem('tags', JSON.stringify(this.tags));
+  localStorage.setItem('notes', JSON.stringify(this.notes));
+  },
+  init() {
+  localStorage.removeItem('notes');
+  localStorage.removeItem('tags');
+  }
+  }
+  }
