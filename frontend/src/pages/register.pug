@@ -1,0 +1,44 @@
+#registerContainer.flex.justify-center.items-center.min-h-screen.p-4.bg-gray-100(class="dark:bg-gray-950")
+    form#register.w-md.p-8.bg-white.border.border-gray-300.rounded(
+        x-data="{ loading: false }",
+        @submit.prevent=`
+            loading = true;
+            axios.post(
+                "http://localhost:8080/api/register.php",
+                formDataToJSON(new FormData($el))
+            ).then(({ data }) => {
+                if (data.message === "Đăng ký thành công, vui lòng kiểm tra email để kích hoạt.") {
+                    notyf.success(data.message);
+                } else {
+                    notyf.error(data.message);
+                }
+
+                loading = false;
+            });
+        `
+        class="dark:text-white dark:bg-gray-900 dark:border-gray-800"
+    )
+        h4.font-semibold.uppercase.mb-4 SIGN UP
+
+        .mb-8
+            .mb-4
+                label(for="full-name").form-label Full Name
+                input(type="text", id="full-name", name="display_name").form-control
+
+            .mb-4
+                label(for="email").form-label Email
+                input(type="email", id="email", name="email").form-control
+
+            .mb-4
+                label(for="password").form-label Password
+                input(type="password", id="password", name="password").form-control
+
+            .mb-4
+                label(for="confirm-password").form-label Confirm Password
+                input(type="password", id="confirm-password", name="password_confirmation").form-control
+
+        button.w-full.btn.mb-4.text-white.bg-primary(type="submit" :disabled="loading") Register
+            .spinner.ms-2(:class="{ 'hidden': !loading }")
+
+        p.text-center Already a user?
+            a.ms-2(href="/login") Login!

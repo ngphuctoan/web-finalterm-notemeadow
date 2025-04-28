@@ -12,7 +12,7 @@ header('Content-Type: application/json');
 
 function sendActivationEmail($to, $user_name, $activation_token) {
     $subject = "Verify your Note account";
-    $activation_link = "http://localhost/note_management/api/activate_account.php?token=" . $activation_token;
+    $activation_link = "http://" . $_SERVER["HTTP_HOST"] . "/api/activate_account.php?token=" . $activation_token;
 
     // Using heredoc for better readability
     $body = <<<EOD

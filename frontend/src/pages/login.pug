@@ -1,0 +1,37 @@
+#loginContainer.flex.justify-center.items-center.min-h-screen.p-4.bg-gray-100(class="dark:bg-gray-950")
+    form#login.w-md.p-8.bg-white.border.border-gray-300.rounded(
+        x-data="{ loading: false }",
+        @submit.prevent=`
+            loading = true;
+            axios.post(
+                "http://localhost:8080/api/login.php",
+                formDataToJSON(new FormData($el))
+            ).then(({ data }) => {
+                if (data.message === "Đăng nhập thành công.") {
+                    $router.navigate("/");
+                } else {
+                    notyf.error(data.message);
+                    loading = false;
+                }
+            });
+        `,
+        class="dark:text-white dark:bg-gray-900 dark:border-gray-800"
+    )
+        h4.font-semibold.uppercase.mb-4 Welcome back!
+
+        .mb-8
+            .mb-4
+                label(for="email").form-label Email
+                input(type="email", id="email", name="email").form-control
+
+            .mb-4
+                label(for="password").form-label Password
+                input(type="password", id="password", name="password").form-control
+
+        .flex.flex-col.gap-2.mb-4(class="sm:flex-row")
+            button.flex-1.btn.text-white.bg-primary(type="submit" :disabled="loading") Login
+                .spinner.ms-2(:class="{ 'hidden': !loading }")
+            button.flex-1.btn.text-primary.border.border-primary(type="button") Forgot password
+
+        p.text-center New user?
+            a.ms-2(href="/register") Register now!
