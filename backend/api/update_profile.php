@@ -1,5 +1,6 @@
 <?php
-require 'config.php'; // Kết nối cơ sở dữ liệu
+
+require "config.php"; // Kết nối cơ sở dữ liệu
 session_start();
 
 
@@ -9,22 +10,22 @@ header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
 // Trả về JSON
-header('Content-Type: application/json');
+header("Content-Type: application/json");
 
 // Kiểm tra phiên đăng nhập
-if (!isset($_SESSION['user_id'])) {
+if (!isset($_SESSION["user_id"])) {
     http_response_code(401);
-    echo json_encode(['message' => 'Chưa đăng nhập.']);
+    echo json_encode(["message" => "Chưa đăng nhập."]);
     exit;
 }
 
 // Lấy user_id từ session
-$user_id = $_SESSION['user_id'];
+$user_id = $_SESSION["user_id"];
 
 // Kiểm tra phương thức yêu cầu
-if ($_SERVER['REQUEST_METHOD'] !== 'PUT') {
+if ($_SERVER["REQUEST_METHOD"] !== "PUT") {
     http_response_code(405);
-    echo json_encode(['message' => 'Phương thức không hợp lệ.']);
+    echo json_encode(["message" => "Phương thức không hợp lệ."]);
     exit;
 }
 
@@ -36,39 +37,39 @@ $updateFields = [];
 $params = [];
 
 // Kiểm tra và thêm các trường vào mảng cập nhật
-if (isset($data['email'])) {
+if (isset($data["email"])) {
     $updateFields[] = "email = ?";
-    $params[] = $data['email'];
+    $params[] = $data["email"];
 }
-if (isset($data['display_name'])) {
+if (isset($data["display_name"])) {
     $updateFields[] = "display_name = ?";
-    $params[] = $data['display_name'];
+    $params[] = $data["display_name"];
 }
-if (isset($data['is_active'])) {
+if (isset($data["is_active"])) {
     $updateFields[] = "is_active = ?";
-    $params[] = $data['is_active'];
+    $params[] = $data["is_active"];
 }
-if (isset($data['activation_token'])) {
+if (isset($data["activation_token"])) {
     $updateFields[] = "activation_token = ?";
-    $params[] = $data['activation_token'];
+    $params[] = $data["activation_token"];
 }
-if (isset($data['preferences'])) {
+if (isset($data["preferences"])) {
     $updateFields[] = "preferences = ?";
-    $params[] = $data['preferences']; // Chuyển đổi thành JSON nếu cần
+    $params[] = $data["preferences"]; // Chuyển đổi thành JSON nếu cần
 }
-if (isset($data['image'])) {
+if (isset($data["image"])) {
     $updateFields[] = "image = ?";
-    $params[] = $data['image']; // Lưu ảnh dưới dạng JSON
+    $params[] = $data["image"]; // Lưu ảnh dưới dạng JSON
 }
-if (isset($data['theme'])) {
+if (isset($data["theme"])) {
     $updateFields[] = "theme = ?";
-    $params[] = $data['theme'];
+    $params[] = $data["theme"];
 }
 
 // Nếu không có trường nào được cung cấp để cập nhật
 if (empty($updateFields)) {
     http_response_code(400);
-    echo json_encode(['message' => 'Vui lòng cung cấp ít nhất một trường để cập nhật.']);
+    echo json_encode(["message" => "Vui lòng cung cấp ít nhất một trường để cập nhật."]);
     exit;
 }
 
@@ -82,13 +83,12 @@ $stmt = $pdo->prepare($sql);
 try {
     // Thực hiện câu lệnh cập nhật
     if ($stmt->execute($params)) {
-        echo json_encode(['message' => 'Thông tin người dùng đã được cập nhật.']);
+        echo json_encode(["message" => "Thông tin người dùng đã được cập nhật."]);
     } else {
         http_response_code(500);
-        echo json_encode(['message' => 'Cập nhật thông tin không thành công.']);
+        echo json_encode(["message" => "Cập nhật thông tin không thành công."]);
     }
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(['message' => 'Lỗi khi cập nhật dữ liệu: ' . htmlspecialchars($e->getMessage())]);
+    echo json_encode(["message" => "Lỗi khi cập nhật dữ liệu: " . htmlspecialchars($e->getMessage())]);
 }
-?>

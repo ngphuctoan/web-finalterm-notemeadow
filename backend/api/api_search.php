@@ -1,29 +1,30 @@
 <?php
-require 'config.php'; // Kết nối cơ sở dữ liệu
+
+require "config.php"; // Kết nối cơ sở dữ liệu
 session_start();
 
 // Định dạng phản hồi là JSON
-header('Content-Type: application/json');
+header("Content-Type: application/json");
 // Thêm CORS Headers
 header("Access-Control-Allow-Origin: *"); // Cho phép tất cả nguồn (có thể thay * bằng localhost:3000)
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
 // Kiểm tra xem người dùng đã đăng nhập hay chưa
-if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['message' => 'Chưa đăng nhập.']);
+if (!isset($_SESSION["user_id"])) {
+    echo json_encode(["message" => "Chưa đăng nhập."]);
     exit;
 }
 
-$user_id = $_SESSION['user_id'];
+$user_id = $_SESSION["user_id"];
 
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+if ($_SERVER["REQUEST_METHOD"] === "GET") {
     // Lấy từ khóa tìm kiếm từ query string
-    $keyword = $_GET['keyword'] ?? '';
+    $keyword = $_GET["keyword"] ?? "";
 
     // Kiểm tra nếu không có từ khóa
     if (empty($keyword)) {
-        echo json_encode(['message' => 'Vui lòng cung cấp từ khóa tìm kiếm.']);
+        echo json_encode(["message" => "Vui lòng cung cấp từ khóa tìm kiếm."]);
         exit;
     }
 
@@ -40,6 +41,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'GET') {
 
     echo json_encode($notes);
 } else {
-    echo json_encode(['message' => 'Phương thức không hợp lệ.']);
+    echo json_encode(["message" => "Phương thức không hợp lệ."]);
 }
-?>

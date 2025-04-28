@@ -1,5 +1,6 @@
 <?php
-require 'config.php'; // Kết nối database
+
+require "config.php"; // Kết nối database
 session_start();
 
 // 🔥 Thêm header để bật CORS
@@ -8,21 +9,21 @@ header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
 // Trả về JSON
-header('Content-Type: application/json');
+header("Content-Type: application/json");
 
 
-// if (!isset($_SESSION['user_id'])) {
-//     echo json_encode(['message' => 'Chưa đăng nhập.']);
+// if (!isset($_SESSION["user_id"])) {
+//     echo json_encode(["message" => "Chưa đăng nhập."]);
 //     exit;
 // }
 
 //Lấy user_id từ session
-$user_id = $_SESSION['user_id'] ?? 18;
+$user_id = $_SESSION["user_id"] ?? 18;
 
 // Kiểm tra và lọc keyword từ yêu cầu GET
-$keyword = isset($_GET['keyword']) ? trim($_GET['keyword']) : '';
+$keyword = isset($_GET["keyword"]) ? trim($_GET["keyword"]) : "";
 // Thêm ký tự % để sử dụng với LIKE
-$keyword = '%' . $keyword . '%';
+$keyword = "%" . $keyword . "%";
 
 // Chuẩn bị truy vấn để lấy danh sách ghi chú theo keyword
 $sql = "SELECT * FROM notes  
@@ -39,8 +40,8 @@ $stmt->execute([$user_id, $keyword, $keyword, $keyword, $keyword]);
 $notes = $stmt->fetchAll(PDO::FETCH_ASSOC);
 foreach ($notes as &$note) {
     // Giải mã chuỗi JSON của ảnh nếu cần
-    if (!empty($note['image'])) {
-        $note['image'] = json_decode($note['image'], true); // Chuyển đổi chuỗi JSON thành mảng
+    if (!empty($note["image"])) {
+        $note["image"] = json_decode($note["image"], true); // Chuyển đổi chuỗi JSON thành mảng
     }
 }
 
