@@ -6,10 +6,6 @@
     a[href] {
         @apply underline text-primary;
     }
-
-    .material-icons {
-        @apply align-bottom;
-    }
 }
 
 @layer components {
@@ -25,23 +21,11 @@
         }
     }
 
-    .form-label {
-        @apply inline-block text-sm mb-2;
-    }
-
-    .form-control {
-        @apply w-full px-3 py-1.5 outline outline-gray-300 placeholder-gray-400 rounded;
-
-        @variant dark {
-            @apply outline-gray-700;
-        }
-
-        @variant focus {
-            @apply outline-2 outline-primary;
-        }
-    }
-
     .spinner {
-        @apply inline-block align-middle w-3 h-3 scale-125 border-2 border-t-transparent rounded-full animate-spin;
+        @apply inline-block w-3 h-3 scale-125 border-3 border-t-transparent rounded-full animate-spin;
     }
+}
+
+.form-input {
+    @apply w-full mt-1 bg-gray-200 dark:bg-gray-800 border-0 rounded ring-primary focus:ring-2;
 }
