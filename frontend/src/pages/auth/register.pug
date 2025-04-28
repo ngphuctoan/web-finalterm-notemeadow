@@ -31,11 +31,11 @@
 
             .mb-4
                 label(for="password").form-label Password
-                input(type="password", id="password", name="password").form-control
+                input(type="password", id="password", name="password", autocomplete="new-password").form-control
 
             .mb-4
                 label(for="confirm-password").form-label Confirm Password
-                input(type="password", id="confirm-password", name="password_confirmation").form-control
+                input(type="password", id="confirm-password", name="password_confirmation", autocomplete="new-password").form-control
 
         button.w-full.btn.mb-4.text-white.bg-primary(type="submit" :disabled="loading") Register
             .spinner.ms-2(:class="{ 'hidden': !loading }")

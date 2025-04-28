@@ -13,7 +13,9 @@ html(lang="en")
     body(x-data="app" :class="darkMode ? 'dark' : 'light'")
         template(x-route="/", x-template="./pages/home.html")
 
-        template(x-route="/login", x-template="./pages/login.html")
-        template(x-route="/register", x-template="./pages/register.html")
+        template(x-route="/login", x-template="./pages/auth/login.html")
+        template(x-route="/register", x-template="./pages/auth/register.html")
+        template(x-route="/forgot", x-template="./pages/auth/forgot.html")
+        template(x-route="/reset", x-template="./pages/auth/reset.html")
 
         template(x-route="/edit/:id", x-template="./pages/edit.html")

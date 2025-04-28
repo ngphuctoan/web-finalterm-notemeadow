@@ -31,7 +31,7 @@
         .flex.flex-col.gap-2.mb-4(class="sm:flex-row")
             button.flex-1.btn.text-white.bg-primary(type="submit" :disabled="loading") Login
                 .spinner.ms-2(:class="{ 'hidden': !loading }")
-            button.flex-1.btn.text-primary.border.border-primary(type="button") Forgot password
+            a.flex-1.btn.text-primary.border.border-primary(href="/forgot") Forgot password
 
         p.text-center New user?
             a.ms-2(href="/register") Register now!

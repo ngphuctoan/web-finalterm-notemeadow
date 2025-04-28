@@ -14,7 +14,7 @@
 
 @layer components {
     .btn {
-        @apply cursor-pointer text-sm font-semibold px-4 py-2 rounded;
+        @apply cursor-pointer no-underline text-sm text-center font-semibold px-4 py-2 rounded;
 
         &:hover:not(:active):not(:disabled) {
             @apply opacity-80;
