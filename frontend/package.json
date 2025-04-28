@@ -2,16 +2,21 @@
     "name": "note-app",
     "version": "1.0.0",
     "type": "module",
-    "source": "src/**/*.pug",
+    "source": "./src/**/*.pug",
     "scripts": {
         "start": "parcel"
     },
     "devDependencies": {
+        "@parcel/resolver-glob": "^2.14.4",
         "@parcel/transformer-pug": "^2.14.4",
-        "@tailwindcss/postcss": "^4.1.4"
+        "@tailwindcss/postcss": "^4.1.4",
+        "buffer": "^6.0.3"
     },
     "dependencies": {
+        "@tailwindcss/forms": "^0.5.10",
         "alpinejs": "^3.14.9",
+        "axios": "^1.9.0",
+        "notyf": "^3.10.0",
         "parcel": "^2.14.4",
         "pinecone-router": "^7.0.3",
         "postcss": "^8.5.3"

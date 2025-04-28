@@ -1,3 +1,6 @@
+mixin x-route(route, path)
+    template(x-route=route, x-template.target.app=`./pages/${path}.html`)
+
 doctype html
 html(lang="en")
     head
@@ -10,7 +13,10 @@ html(lang="en")
 
         script(type="module", src="./js/main.js")
     
-    body(x-data="app" :class="darkMode ? 'dark' : 'light'")
-        template(x-route="/", x-template="./pages/home.html")
+    body.bg-gray-100(x-data class="dark:text-white dark:bg-gray-950")
+        +x-route("/", "home")
 
-        template(x-route="/edit/:id", x-template="./pages/edit.html")
+        each route in ["login", "register", "forgot", "reset"]
+            +x-route(`/${route}`, `auth/pages/${route}`)
+
+        main#app
