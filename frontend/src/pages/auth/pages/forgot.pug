@@ -1,0 +1,20 @@
+extends ../layout
+
+block nav
+    a.inline-block.mb-8(href="/login") &xlarr; Back to login
+
+block title
+    | Recover password
+
+block content
+    form#forgot.flex.flex-col.gap-4(x-data="register", @submit.prevent="register")
+        p.opacity-70
+            | If the account with this email exists, 
+            | we will send you a confirmation email to reset your password.
+
+        label(for="email")
+            span Email
+            input.form-input(type="email", id="email", name="email")
+
+        button.btn.mt-2.text-white.bg-primary(type="submit" :disabled="loading")
+            | Send confirmation

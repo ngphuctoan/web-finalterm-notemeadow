@@ -1,0 +1,30 @@
+extends ../layout
+
+block title
+    | Registration
+
+block content
+    form#register.flex.flex-col.gap-4(x-data="register", @submit.prevent="register")
+        label(for="full-name")
+            span Full Name
+            input.form-input(type="text", id="full-name", name="display_name")
+
+        label(for="email")
+            span Email
+            input.form-input(type="email", id="email", name="email")
+
+        label(for="password")
+            span Password
+            input.form-input(type="password", id="password", name="password", autocomplete="new-password")
+
+        label(for="confirm-password")
+            span Confirm Password
+            input.form-input(type="password", id="confirm-password", name="password_confirmation", autocomplete="new-password")
+
+        button.btn.mt-2.text-white.bg-primary(type="submit" :disabled="loading")
+            .spinner.me-2(:class="{ 'hidden': !loading }")
+            | Register
+
+        p.text-center
+            | Already a user?
+            a.ms-2(href="/login") Login!

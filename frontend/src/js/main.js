@@ -1,11 +1,14 @@
-import axios from "axios";
-import { Notyf } from "notyf";
 import Alpine from "alpinejs";
 import PineconeRouter from "pinecone-router";
 
+import { Notyf } from "notyf";
 import "notyf/notyf.min.css";
 
-const notyf = new Notyf({
+const alpineData = import("./alpine/*.js");
+
+window.API_URL = "http://localhost:8080/api";
+
+window.notyf = new Notyf({
     duration: 5000,
     position: { y: "top" },
     dismissible: true,
@@ -14,23 +17,14 @@ const notyf = new Notyf({
 
 Alpine.plugin(PineconeRouter);
 
-window.axios = axios;
-window.notyf = notyf;
-
-window.formDataToJSON = (formData) => {
-    const jsonData = {};
-    formData.forEach((value, key) => jsonData[key] = value);
-    return jsonData;
-}
-
 document.addEventListener("alpine:init", () => {
     window.PineconeRouter.settings({
         hash: true
     });
 
-    Alpine.data("app", () => ({
-        darkMode: true
-    }));
+    Object.entries(alpineData).forEach(([name, module]) => {
+        Alpine.data(name, module.default);
+    });
 });
 
 Alpine.start();
