@@ -1,20 +1,20 @@
 <?php
-require 'config.php';
+require "config.php";
 session_start();
 
 // Bật hiển thị lỗi
 error_reporting(E_ALL);
-ini_set('display_errors', 1);
+ini_set("display_errors", 1);
 
 // 🔥 Thêm header để bật CORS
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
-$expired_message = ''; 
-$reset = null; 
+$expired_message = "";
+$reset = null;
 
-$token = $_GET['token'] ?? '';
+$token = $_GET["token"] ?? "";
 $current_time = date("Y-m-d H:i:s");
 
 // Kiểm tra token
@@ -24,16 +24,16 @@ if ($token) {
     $reset = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($reset) {
-        $expires = $reset['expires'];
+        $expires = $reset["expires"];
 
         if ($current_time > $expires) {
             http_response_code(400);
-            echo json_encode(['message' => 'Liên kết đã hết hạn. Vui lòng yêu cầu một liên kết mới.']);
+            echo json_encode(["message" => "Liên kết đã hết hạn. Vui lòng yêu cầu một liên kết mới."]);
             exit;
         }
     } else {
         http_response_code(400);
-        echo json_encode(['message' => 'Mã xác thực không hợp lệ. Vui lòng kiểm tra lại.']);
+        echo json_encode(["message" => "Mã xác thực không hợp lệ. Vui lòng kiểm tra lại."]);
         exit;
     }
 }
@@ -88,7 +88,7 @@ if ($token) {
 </head>
 <body>
     <h2>Đặt Lại Mật Khẩu</h2>
-    <?php if (!isset($reset) || $expired_message || $current_time > ($reset['expires'] ?? '')): ?>
+    <?php if (!isset($reset) || $expired_message || $current_time > ($reset["expires"] ?? "")): ?>
         <p><?php echo htmlspecialchars($expired_message); ?> hoặc liên kết đặt lại mật khẩu đã hết hạn.</p>
     <?php else: ?>
         <form action="reset_password_form.php?token=<?php echo htmlspecialchars($token); ?>" method="POST">
