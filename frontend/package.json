@@ -7,7 +7,6 @@
         "start": "parcel"
     },
     "devDependencies": {
-        "@parcel/resolver-glob": "^2.14.4",
         "@parcel/transformer-pug": "^2.14.4",
         "@tailwindcss/postcss": "^4.1.4",
         "buffer": "^6.0.3"
@@ -16,9 +15,11 @@
         "@tailwindcss/forms": "^0.5.10",
         "alpinejs": "^3.14.9",
         "axios": "^1.9.0",
+        "lodash": "^4.17.21",
         "notyf": "^3.10.0",
         "parcel": "^2.14.4",
         "pinecone-router": "^7.0.3",
-        "postcss": "^8.5.3"
+        "postcss": "^8.5.3",
+        "quill": "^2.0.3"
     }
 }

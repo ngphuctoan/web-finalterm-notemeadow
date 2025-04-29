@@ -1,0 +1,14 @@
+#home.flex.flex-col.min-h-screen(x-data="app")
+    header.grid.gap-2.sticky.top-0.px-4.py-2.bg-white.border-b.border-gray-200.z-1(
+        class="md:grid-cols-3 dark:bg-gray-900 dark:border-gray-800"
+    )
+        .flex.items-center
+            block header-left
+
+        .flex.justify-center.items.center
+            block header-center
+
+        .flex.justify-end.items-center
+            block header-right
+
+    block content

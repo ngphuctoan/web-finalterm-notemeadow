@@ -5,7 +5,8 @@ require "send_email.php"; // Nhúng tệp gửi email
 session_start(); // Khởi động session nếu cần
 
 // 🔥 Thêm header để bật CORS
-header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Origin: http://localhost:1234");
+header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
@@ -41,8 +42,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 exit;
             }
 
+            $protocol = isset($_SERVER["HTTP_HOST"]) && $_SERVER["HTTP_HOST"] === "on" ? "https" : "http";
+
             // Tạo liên kết đặt lại mật khẩu
-            $resetLink = "http://localhost/note_management/api/resetpass.php?token=" . $token;
+            $resetLink = "$protocol://$_SERVER[HTTP_HOST]/api/resetpass.php?token=" . $token;
 
             // Gửi email với liên kết đặt lại mật khẩu
             $subject = "Reset your Note password - $email";
