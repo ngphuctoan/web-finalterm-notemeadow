@@ -1,4 +1,4 @@
-import axios, { formToJSON } from "axios";
+import { formToJSON } from "axios";
 
 export default function () {
     return {
@@ -8,10 +8,7 @@ export default function () {
             this.loading = true;
 
             try {
-                const { data } = await axios.post(
-                    `${API_URL}/register.php`,
-                    formToJSON(new FormData(this.$el))
-                );
+                const { data } = await axios.post("/register.php", formToJSON(new FormData(this.$el)));
 
                 if (data.message.includes("Đăng ký thành công")) {
                     notyf.success(data.message);

@@ -5,7 +5,8 @@ session_start();
 // Định dạng phản hồi là JSON
 header('Content-Type: application/json');
 // Thêm CORS Headers
-header("Access-Control-Allow-Origin: *"); // Cho phép tất cả nguồn (có thể thay * bằng localhost:3000)
+header("Access-Control-Allow-Origin: http://localhost:1234");
+header("Access-Control-Allow-Credentials: true"); // Cho phép tất cả nguồn (có thể thay * bằng localhost:3000)
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
 

@@ -4,7 +4,8 @@ session_start();
 
 
 // 🔥 Thêm header để bật CORS
-header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Origin: http://localhost:1234");
+header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
@@ -27,10 +28,10 @@ try {
     $stmt->execute([$user_id]);
 
     // Lấy kết quả và xử lý đường dẫn ảnh
-    $profiles = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $profile = $stmt->fetch(PDO::FETCH_ASSOC);
 
     // Trả về dữ liệu ghi chú dưới dạng JSON
-    echo json_encode($profiles);
+    echo json_encode($profile);
 } catch (PDOException $e) {
     http_response_code(500); // Trả về mã lỗi 500
     echo json_encode(['message' => 'Lỗi khi lấy dữ liệu: ' . htmlspecialchars($e->getMessage())]);

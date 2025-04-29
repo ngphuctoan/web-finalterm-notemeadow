@@ -1,12 +1,19 @@
 import Alpine from "alpinejs";
 import PineconeRouter from "pinecone-router";
 
+import axios from "axios";
+
 import { Notyf } from "notyf";
 import "notyf/notyf.min.css";
 
 const alpineData = import("./alpine/*.js");
 
-window.API_URL = "http://localhost:8080/api";
+window.API_URL = "http://localhost:8080";
+
+window.axios = axios.create({
+    baseURL: `${API_URL}/api`,
+    withCredentials: true
+})
 
 window.notyf = new Notyf({
     duration: 5000,

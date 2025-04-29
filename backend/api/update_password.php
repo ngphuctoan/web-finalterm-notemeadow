@@ -3,7 +3,8 @@ require 'config.php'; // Kết nối cơ sở dữ liệu
 session_start();
 
 // 🔥 Bật CORS
-header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Origin: http://localhost:1234");
+header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: PUT, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header('Content-Type: application/json');

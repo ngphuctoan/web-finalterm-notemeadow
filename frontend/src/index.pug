@@ -9,12 +9,16 @@ html(lang="en")
 
         title Document
 
+        link(rel="stylesheet", href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans")
+        link(rel="stylesheet", href="../assets/fontawesome/css/all.min.css")
+
         link(rel="stylesheet", href="./css/styles.css")
 
         script(type="module", src="./js/main.js")
     
-    body.bg-gray-100(x-data class="dark:text-white dark:bg-gray-950")
+    body.bg-gray-100(x-data class="font-[Plus_Jakarta_Sans] dark:text-white dark:bg-gray-950")
         +x-route("/", "app/pages/home")
+        +x-route("/old", "app/pages/old")
         +x-route("/edit/:id", "app/pages/edit")
 
         each route in ["login", "register", "forgot", "reset"]

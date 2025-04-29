@@ -1,4 +1,4 @@
-import axios, { formToJSON } from "axios";
+import { formToJSON } from "axios";
 
 export default function () {
     return {
@@ -8,10 +8,7 @@ export default function () {
             this.loading = true;
 
             try {
-                const { data } = await axios.post(
-                    `${API_URL}/login.php`,
-                    formToJSON(new FormData(this.$el))
-                );
+                const { data } = await axios.post("/login.php", formToJSON(new FormData(this.$el)));
 
                 if (data.message.includes("Đăng nhập thành công")) {
                     this.$router.navigate("/");
