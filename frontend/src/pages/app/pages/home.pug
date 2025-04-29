@@ -40,7 +40,7 @@ block header-center
 
 block header-right
     button.btn.flex.items-center.gap-4.p-0(type="button")
-        img.size-8.rounded-full(:src="`${API_URL}/api/${profile.image}`")
+        img.size-8.rounded-full(:src="`${API_URL}/api/${profile.image || 'uploads/Embargo_PBR.png'}`")
         span(x-text="profile.display_name")
 
 block content
@@ -56,7 +56,7 @@ block content
             ul.bg-gray-100.border.border-gray-300.divide-y.divide-gray-300.rounded(
                 class="dark:bg-gray-900 dark:border-gray-800 dark:divide-gray-800"
             )
-                template(x-for="tag in []", :key="tag.id")
+                template(x-for="tag in $store.tags._list", :key="tag.id")
                     li.px-4.py-2(class="hover:not-active:bg-gray-300/50 dark:hover:not-active:bg-gray-800/50")
                         i.fa.fa-tag.text-lg
                         span.ms-4.text-gray-700(x-text="tag.name", class="dark:text-gray-400")

@@ -11,6 +11,7 @@ import "notyf/notyf.min.css";
 import Quill from "quill";
 
 import notes from "./stores/notes";
+import tags from "./stores/tags";
 
 window.API_URL = "http://localhost:8080";
 
@@ -38,6 +39,7 @@ document.addEventListener("alpine:init", () => {
     });
 
     Alpine.store("notes", notes());
+    Alpine.store("tags", tags());
 
     Alpine.data("app", function () {
         return {

@@ -1,5 +1,3 @@
-import Alpine from "alpinejs";
-
 export default function () {
     return {
         _list: [],
