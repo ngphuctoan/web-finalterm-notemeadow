@@ -1,0 +1,45 @@
+.ql-editor {
+    @apply leading-7 break-all p-5 bg-gray-200 rounded outline-primary;
+
+    &.ql-blank::before {
+        content: attr(placeholder);
+
+        @apply absolute text-gray-500;
+    }
+
+    @variant dark {
+        @apply bg-gray-900;
+    }
+
+    @variant focus {
+        @apply outline-3;
+    }
+
+    h1 {
+        @apply text-4xl font-bold;
+    }
+
+    h2 {
+        @apply text-3xl font-semibold;
+    }
+
+    h3 {
+        @apply text-2xl;
+    }
+
+    .ql-align-justify {
+        text-align: justify;
+    }
+
+    .ql-align-center {
+        text-align: center;
+    }
+
+    .ql-align-right {
+        text-align: right;
+    }
+}
+
+.ql-active {
+    @apply text-primary;
+}

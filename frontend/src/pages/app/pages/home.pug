@@ -10,18 +10,22 @@ mixin note-grid(pinned)
         :class="{ 'sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4': !options.listView }"
     )
         template(
-            x-for=`note in get${pinned ? "Pinned" : "Unpinned"}Notes()`,
+            x-for=`note in $store.notes._list.filter((note) =>
+                note.is_pinned === ${+pinned}
+            )`,
             :key="note.id"
         )
             a.p-4.bg-gray-300.border.border-transparent.outline-primary.rounded(
                 :href="`/edit/${note.id}`",
                 class="dark:bg-gray-900 hover:border-gray-400 dark:hover:border-gray-800 focus:outline-3",
-                :class="{ 'aspect-square': !options.listView }"
             )
-                .mb-2
-                    h5.text-lg(x-text="note.title")
+                .mb-4
+                    h5.text-lg.font-semibold(x-text="note.title")
 
-                p(x-text="note.content")
+                p.leading-5.break-all.line-clamp-2(
+                    x-text="$store.notes.deltaToPreview(note.content)",
+                    :class="{ 'whitespace-pre-line line-clamp-5': !options.listView }"
+                )
 
 block header-left
     h1.text-xl.font-semibold.text-primary notemeadow
@@ -36,11 +40,11 @@ block header-center
 
 block header-right
     button.btn.flex.items-center.gap-4.p-0(type="button")
-        img.size-8.rounded-full(:src="getProfilePicture()")
+        img.size-8.rounded-full(:src="`${API_URL}/api/${profile.image}`")
         span(x-text="profile.display_name")
 
 block content
-    #notes.grid(class="lg:grid-cols-[1fr_3fr] xl:grid-cols-[1fr_4fr] lg:h-full")
+    #notes.flex-1.grid(class="lg:grid-cols-[1fr_3fr] xl:grid-cols-[1fr_4fr]")
         aside.flex.flex-col.gap-4.sticky.p-4(class="bg-white dark:bg-gray-900/50")
             .flex.justify-between.items-center
                 h2.text-lg.font-semibold.ms-2 Tags
@@ -52,7 +56,7 @@ block content
             ul.bg-gray-100.border.border-gray-300.divide-y.divide-gray-300.rounded(
                 class="dark:bg-gray-900 dark:border-gray-800 dark:divide-gray-800"
             )
-                template(x-for="tag in tags", :key="tag.id")
+                template(x-for="tag in []", :key="tag.id")
                     li.px-4.py-2(class="hover:not-active:bg-gray-300/50 dark:hover:not-active:bg-gray-800/50")
                         i.fa.fa-tag.text-lg
                         span.ms-4.text-gray-700(x-text="tag.name", class="dark:text-gray-400")

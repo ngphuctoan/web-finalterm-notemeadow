@@ -1,61 +1,171 @@
-.flex.items-center.justify-between.p-4.bg-white.shadow(class="dark:bg-gray-900")
-    .text-xl.font-bold Note Detail
-    button.text-sm.text-gray-600(
-        @click="darkMode = !darkMode; localStorage.setItem('darkMode', darkMode)",
-        class="dark:text-gray-300 hover:text-blue-500"
-    ) Toggle Theme
-//- Content
-.max-w-4xl.mx-auto.mt-10.bg-white.shadow.rounded-lg.p-6(class="dark:bg-gray-900", x-data="noteDetail()")
-    .mb-6
-        a.text-blue-600(href="/", class="dark:text-blue-400 hover:underline") &larr; Back to Notes
-    //- Title
-    h1.text-3xl.font-bold.text-gray-900.mb-2(
-        x-text="title",
-        @dblclick="editTitle = true",
-        x-show="!editTitle",
-        class="dark:text-gray-100"
+extends ../layout
+
+block header-left
+    a.btn-icon(href="/")
+        i.fa.fa-arrow-left
+
+block header-right
+    btn.btn-icon(type="button")
+        i.fa.fa-lock
+
+block content
+    #editor-container.flex.flex-col.gap-4.w-full.max-w-4xl.h-full.p-4.mx-auto(
+        x-data="{ note: {} }",
+        x-init=`
+            note = $store.notes.get($params.id);
+
+            quill = new Quill("#editor", {
+                modules: {
+                    toolbar: "#editor-toolbar"
+                }
+            });
+
+            quill.root.setAttribute("placeholder",
+                "Write something legendary! Or just your grocery list..."
+            );
+
+            const saveDelta = _.debounce(
+                () => $store.notes.update($params.id, {
+                    content: JSON.stringify(quill.getContents().ops)
+                })
+            , 1000);
+            
+            quill.on("text-change", (delta, oldDelta, source) => {
+                if (source === "user") {
+                    saveDelta();
+                }
+            });
+
+            quill.getModule("toolbar").addHandler("image", () => {
+                const input = document.createElement("input");
+
+                input.setAttribute("type", "file");
+                input.setAttribute("accept", "image/*");
+
+                input.click();
+
+                input.onchange = async () => {
+                    const filePath = await uploadImage(input.files[0]);
+
+                    if (filePath) {
+                        const range = quill.getSelection();
+                        quill.insertEmbed(range.index, "image", API_URL + "/api/" + filePath);
+                    }
+                };
+            });
+
+            quill.setContents(note.content);
+
+            quill.focus();
+        `
     )
-    input.w-full.px-4.py-2.border.rounded.bg-gray-50.mb-2(
-        x-model="title",
-        @blur="saveTitle",
-        x-show="editTitle",
-        @keyup.enter="saveTitle",
-        class="dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
-    )
-    //- Tag
-    .text-sm.text-gray-500.mb-4(class="dark:text-gray-400")
-        | Tag:
-        span.italic tag-1
-    //- Content
-    .prose.max-w-none(class="dark:prose-invert")
-        p(
-            @dblclick="editContent = true",
-            x-show="!editContent",
-            x-text="content"
-        )
-        textarea.w-full.px-4.py-2.border.rounded.bg-gray-50(
-            x-model="content",
-            @blur="saveContent",
-            x-show="editContent",
-            @keyup.enter="saveContent",
-            class="dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400",
-            rows="5"
-        )
-script.
-    function noteDetail() {
-        return {
-            darkMode: JSON.parse(localStorage.getItem("darkMode")) ?? false,
-            editTitle: false,
-            editContent: false,
-            title: "Title of the Note",
-            content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget diam vitae metus accumsan varius. In hac habitasse platea dictumst. Suspendisse potenti. Curabitur et sapien nec leo volutpat lacinia.",
-            saveTitle() {
-                this.editTitle = false;
-                localStorage.setItem("noteTitle", this.title);
-            },
-            saveContent() {
-                this.editContent = false;
-                localStorage.setItem("noteContent", this.content);
-            },
-        };
-    }
+        #editor-toolbar-overflow.overflow-x-auto
+            #editor-toolbar.w-max.flex.justify-center.items-center.p-2.mx-auto
+                select.ql-header.form-input(class="!w-40 !mt-0")
+                    each h in [1, 2, 3]
+                        option(value=h) Heading #{h}
+                    option(selected) Body
+
+                .px-2
+
+                -
+                    const formats = {
+                        bold: {}, italic: {}, underline: {},
+                        strike: { icon: "strikethrough" }
+                    }
+
+                each [format, options] of Object.entries(formats)
+                    button.btn-icon(type="button", class=`ql-${format}`)
+                        i.fa(class=`fa-${options.icon || format}`)
+
+                .px-2
+
+                -
+                    const aligns = {
+                        "": { icon: "left" },
+                        justify: {}, center: {}, right: {}
+                    }
+
+                each [align, options] of Object.entries(aligns)
+                    button.ql-align.btn-icon(type="button", value=align)
+                        i.fa(class=`fa-align-${options.icon || align}`)
+
+                .px-2
+
+                button.ql-image.btn-icon(type="button")
+                    i.fa.fa-image
+
+        #note-title
+            input.form-input.text-2xl.font-bold.p-5(
+                type="text",
+                :value="note.title",
+                placeholder="Note title",
+                class="dark:!bg-gray-900",
+                @input.debounce.2s=`$store.notes.update($params.id, {
+                    title: $el.value
+                })`
+            )
+
+        #editor
+
+//- .flex.items-center.justify-between.p-4.bg-white.shadow(class="dark:bg-gray-900")
+//-     .text-xl.font-bold Note Detail
+//-     button.text-sm.text-gray-600(
+//-         @click="darkMode = !darkMode; localStorage.setItem('darkMode', darkMode)",
+//-         class="dark:text-gray-300 hover:text-blue-500"
+//-     ) Toggle Theme
+//- //- Content
+//- .max-w-4xl.mx-auto.mt-10.bg-white.shadow.rounded-lg.p-6(class="dark:bg-gray-900", x-data="noteDetail()")
+//-     .mb-6
+//-         a.text-blue-600(href="/", class="dark:text-blue-400 hover:underline") &larr; Back to Notes
+//-     //- Title
+//-     h1.text-3xl.font-bold.text-gray-900.mb-2(
+//-         x-text="title",
+//-         @dblclick="editTitle = true",
+//-         x-show="!editTitle",
+//-         class="dark:text-gray-100"
+//-     )
+//-     input.w-full.px-4.py-2.border.rounded.bg-gray-50.mb-2(
+//-         x-model="title",
+//-         @blur="saveTitle",
+//-         x-show="editTitle",
+//-         @keyup.enter="saveTitle",
+//-         class="dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400"
+//-     )
+//-     //- Tag
+//-     .text-sm.text-gray-500.mb-4(class="dark:text-gray-400")
+//-         | Tag:
+//-         span.italic tag-1
+//-     //- Content
+//-     .prose.max-w-none(class="dark:prose-invert")
+//-         p(
+//-             @dblclick="editContent = true",
+//-             x-show="!editContent",
+//-             x-text="content"
+//-         )
+//-         textarea.w-full.px-4.py-2.border.rounded.bg-gray-50(
+//-             x-model="content",
+//-             @blur="saveContent",
+//-             x-show="editContent",
+//-             @keyup.enter="saveContent",
+//-             class="dark:bg-gray-700 dark:text-gray-100 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-400",
+//-             rows="5"
+//-         )
+//- script.
+//-     function noteDetail() {
+//-         return {
+//-             darkMode: JSON.parse(localStorage.getItem("darkMode")) ?? false,
+//-             editTitle: false,
+//-             editContent: false,
+//-             title: "Title of the Note",
+//-             content: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed eget diam vitae metus accumsan varius. In hac habitasse platea dictumst. Suspendisse potenti. Curabitur et sapien nec leo volutpat lacinia.",
+//-             saveTitle() {
+//-                 this.editTitle = false;
+//-                 localStorage.setItem("noteTitle", this.title);
+//-             },
+//-             saveContent() {
+//-                 this.editContent = false;
+//-                 localStorage.setItem("noteContent", this.content);
+//-             },
+//-         };
+//-     }
