@@ -38,4 +38,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['image_path'])) {
 } else {
     echo json_encode(['message' => 'No image path provided.']);
 }
-?>

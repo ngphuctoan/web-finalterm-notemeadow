@@ -1,5 +1,6 @@
 <?php
-require 'config.php'; // Kết nối cơ sở dữ liệu
+
+require "config.php"; // Kết nối cơ sở dữ liệu
 
 // 🔥 Thêm header để bật CORS
 header("Access-Control-Allow-Origin: http://localhost:1234");
@@ -8,10 +9,10 @@ header("Access-Control-Allow-Methods: DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
 // Trả về JSON
-header('Content-Type: application/json');
+header("Content-Type: application/json");
 
 // Kiểm tra phương thức yêu cầu
-if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
     // Nhận dữ liệu từ body
     $data = json_decode(file_get_contents("php://input"));
 
@@ -19,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
     $user_id = $data->user_id ?? null;
 
     if (!$user_id) {
-        echo json_encode(['message' => 'user_id là bắt buộc.']);
+        echo json_encode(["message" => "user_id là bắt buộc."]);
         exit;
     }
 
@@ -31,21 +32,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
     // Nếu người dùng tồn tại
     if ($user) {
         // Xóa tệp ảnh nếu có
-        if ($user['image'] && file_exists($user['image'])) {
-            unlink($user['image']); // Xóa tệp ảnh
+        if ($user["image"] && file_exists($user["image"])) {
+            unlink($user["image"]); // Xóa tệp ảnh
         }
 
         // Xóa người dùng khỏi cơ sở dữ liệu
         $stmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
         if ($stmt->execute([$user_id])) {
-            echo json_encode(['message' => 'Người dùng đã được xóa thành công.']);
+            echo json_encode(["message" => "Người dùng đã được xóa thành công."]);
         } else {
-            echo json_encode(['message' => 'Không thể xóa người dùng.']);
+            echo json_encode(["message" => "Không thể xóa người dùng."]);
         }
     } else {
-        echo json_encode(['message' => 'Người dùng không tồn tại.']);
+        echo json_encode(["message" => "Người dùng không tồn tại."]);
     }
 } else {
-    echo json_encode(['message' => 'Phương thức không hợp lệ.']);
+    echo json_encode(["message" => "Phương thức không hợp lệ."]);
 }
-?>
