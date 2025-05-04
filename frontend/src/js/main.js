@@ -1,4 +1,5 @@
 import Alpine from "alpinejs";
+import persist from "@alpinejs/persist";
 import PineconeRouter from "pinecone-router";
 
 import _ from "lodash";
@@ -13,6 +14,8 @@ import Quill from "quill";
 import notes from "./stores/notes";
 import tags from "./stores/tags";
 
+import MicroModal from "micromodal";
+
 import { computePosition, flip, offset, shift } from "@floating-ui/dom";
 
 window.API_URL = "http://localhost:8080";
@@ -22,11 +25,11 @@ window._ = _;
 window.axiosInstance = axios.create({
     baseURL: `${API_URL}/api`,
     withCredentials: true
-})
+});
 
 window.Quill = Quill;
 
-const notyf = new Notyf({
+window.notyf = new Notyf({
     duration: 5000,
     position: { y: "top" },
     dismissible: true,
@@ -34,6 +37,7 @@ const notyf = new Notyf({
 });
 
 Alpine.plugin(PineconeRouter);
+Alpine.plugin(persist);
 
 document.addEventListener("alpine:init", () => {
     window.PineconeRouter.settings({
@@ -47,9 +51,9 @@ document.addEventListener("alpine:init", () => {
         return {
             profile: {},
 
-            options: {
+            options: Alpine.$persist({
                 listView: false
-            },
+            }),
     
             init() {
                 this.fetchProfile();
@@ -86,6 +90,8 @@ document.addEventListener("alpine:init", () => {
             }
         };
     });
+
+    Alpine.store("syncStatus", "synced");
 
     Alpine.data("login", function () {
         return {

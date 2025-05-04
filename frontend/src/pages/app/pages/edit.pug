@@ -5,8 +5,17 @@ block header-left
         i.fa.fa-arrow-left
 
 block header-right
+    .btn(
+        x-data=`{
+            "synced": { icon: "circle-check" },
+            "waiting": { icon: "sync fa-spin" }
+        }`
+    )
+        i.fa(:class="`fa-${$data[$store.syncStatus].icon}`")
+        span.ms-2(x-text="$store.syncStatus[0].toUpperCase() + $store.syncStatus.slice(1)")
+
     btn.btn-icon(type="button")
-        i.fa.fa-lock
+        i.fa.fa-ellipsis
 
 block content
     #editor-container.flex.flex-col.gap-4.w-full.max-w-4xl.h-full.p-4.mx-auto(
@@ -24,11 +33,15 @@ block content
                 "Write something legendary! Or just your grocery list..."
             );
 
-            const saveDelta = _.debounce(
-                () => $store.notes.update($params.id, {
+            const saveDelta = _.debounce(async () => {
+                $store.syncStatus = "waiting";
+
+                await $store.notes.update($params.id, {
                     content: JSON.stringify(quill.getContents().ops)
-                })
-            , 1000);
+                });
+
+                $store.syncStatus = "synced";
+            }, 1000);
             
             quill.on("text-change", (delta, oldDelta, source) => {
                 if (source === "user") {

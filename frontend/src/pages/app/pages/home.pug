@@ -6,7 +6,7 @@ mixin section-header(title, icon)
         span.ms-4= title
 
 mixin note-grid(pinned)
-    .grid.gap-4.divide-gray-800(
+    .grid.grid-cols-1.gap-4.divide-gray-800(
         :class="{ 'sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4': !options.listView }"
     )
         template(
@@ -19,8 +19,12 @@ mixin note-grid(pinned)
                 @click="$router.navigate(`/edit/${note.id}`)",
                 class="dark:bg-gray-900 hover:border-gray-400 dark:hover:border-gray-800 focus:outline-3",
             )
-                .relative.mb-4
-                    h5.text-lg.font-semibold(x-text="note.title")
+                .relative
+                    template(x-if="note.title")
+                        h5.text-lg.font-semibold.truncate.mb-4(
+                            x-text="note.title",
+                            class="group-hover:pe-12"
+                        )
 
                     div(x-data="dropdown", @click.outside="open = false")
                         button.btn-icon.absolute.top-0.end-0(
@@ -47,8 +51,9 @@ mixin note-grid(pinned)
                                 i.fa.fa-trash.fa-fw
                                 span.ms-4 Delete
 
-                p.leading-5.break-all.line-clamp-2(
+                p.leading-5.wrap-break-word.line-clamp-2(
                     x-text="$store.notes.deltaToPreview(note.content)",
+                    class="group-hover:pe-12",
                     :class="{ 'whitespace-pre-line line-clamp-5': !options.listView }"
                 )
 
@@ -70,21 +75,47 @@ block header-right
 
 block content
     #notes.flex-1.grid(class="lg:grid-cols-[1fr_3fr] xl:grid-cols-[1fr_4fr]")
-        aside.flex.flex-col.gap-4.sticky.p-4(class="bg-white dark:bg-gray-900/50")
+        aside.flex.flex-col.gap-4.sticky.p-4.z-1(class="bg-white dark:bg-gray-900/50")
             .flex.justify-between.items-center
                 h2.text-lg.font-semibold.ms-2 Tags
 
-                button.btn.text-white.bg-primary(type="button")
+                button.btn.text-white.bg-primary(type="button", data-micromodal-trigger="modal-new-tag")
                     i.fa.fa-plus
                     span.ms-2 Add tag
 
-            ul.bg-gray-100.border.border-gray-300.divide-y.divide-gray-300.rounded(
-                class="dark:bg-gray-900 dark:border-gray-800 dark:divide-gray-800"
-            )
-                template(x-for="tag in $store.tags._list", :key="tag.id")
-                    li.px-4.py-2(class="hover:not-active:bg-gray-300/50 dark:hover:not-active:bg-gray-800/50")
-                        i.fa.fa-tag.text-lg
-                        span.ms-4.text-gray-700(x-text="tag.name", class="dark:text-gray-400")
+            template(x-if="$store.tags._list.length > 0")
+                ul.bg-gray-100.border.border-gray-300.divide-y.divide-gray-300.rounded(
+                    class="dark:bg-gray-900 dark:border-gray-800 dark:divide-gray-800"
+                )
+                    template(x-for="tag in $store.tags._list", :key="tag.id")
+                        li.flex(
+                            x-data="{ get active() { return $store.tags.actives.includes(tag.id.toString()); } }",
+                            class="hover:not-active:bg-gray-300/50 dark:hover:not-active:bg-gray-800/50"
+                        )
+                            input.hidden(type="checkbox", x-model="$store.tags.actives", :id="tag.id", :value="tag.id")
+
+                            label.cursor-pointer.flex-1.block.px-4.py-2(
+                                :for="tag.id",
+                                :class="{ 'text-primary': active }"
+                            )
+                                i.fa.text-lg(:class="`fa-square${active ? '-check' : ' fa-regular'}`")
+                                span.ms-4(x-text="tag.name")
+
+                            div(x-data="dropdown", @click.outside="open = false")
+                                button.btn-icon.rounded-none(
+                                    type="button",
+                                    x-ref="toggleBtn"
+                                )
+                                    i.fa.fa-ellipsis
+
+                                ul.dropdown-menu(x-ref="dropdownMenu")
+                                    li.dropdown-item
+                                        i.fa.fa-pencil.fa-fw
+                                        span.ms-4 Edit
+                                    
+                                    li.dropdown-item.text-rose-600(@click="$store.tags.delete(tag.id)")
+                                        i.fa.fa-trash.fa-fw
+                                        span.ms-4 Delete
         
         section.flex.flex-col.gap-8.p-8
             .flex.justify-between.items-center(
@@ -131,6 +162,48 @@ block content
             +section-header("Other", "note-sticky")
 
             +note-grid(false)
+
+    #modal-new-tag.modal(aria-hidden="true")
+        .fixed.inset-0.z-50.grid.place-content-center.p-4(
+            tabindex="-1",
+            data-micromodal-close,
+            class="bg-black/50"
+        )
+            .w-full.max-w-md.rounded.bg-white.p-8.border.border-gray-300(
+                role="dialog",
+                aria-modal="true",
+                aria-labelledby="modal-new-tag-title",
+                class="dark:bg-gray-900 dark:border-gray-800"
+            )
+                header.mb-4
+                    h2.font-semibold.uppercase#modal-new-tag-title Add new tag
+                
+                #modal-new-tag-content(x-data="{ loading: false }")
+                    form#new-tag.flex.flex-col.gap-4(@submit.prevent=`
+                        loading = true;
+                        await $store.tags.add($el.name.value);
+                        loading = false;
+                        MicroModal.close("modal-new-tag");
+                    `)
+                        label(for="name")
+                            span Tag name
+                            input.form-input(type="text", id="name", name="name")
+
+                        .grid.gap-2.mt-2(class="sm:grid-cols-2")
+                            button.btn.text-white.bg-primary(type="submit", :disabled="loading")
+                                .spinner.me-2(:class="{ 'hidden': !loading }")
+                                | Add
+
+                            button.btn.text-primary.border(
+                                type="button",
+                                aria-label="Close modal",
+                                data-micromodal-close
+                            ) Close
+
+    script(type="module").
+        import MicroModal from "micromodal";
+
+        MicroModal.init({ disableScroll: true });
     //- .flex.items-center.justify-between.p-4.bg-white.shadow(class="dark:bg-gray-900")
     //-     .text-xl.font-bold Note App
     //-     .flex.items-center.space-x-4

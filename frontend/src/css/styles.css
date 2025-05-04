@@ -31,7 +31,7 @@
     }
 
     .dropdown-menu {
-        @apply min-w-40 absolute py-1 bg-gray-200 border border-gray-400 divide-y divide-gray-400 rounded shadow-lg;
+        @apply min-w-40 absolute py-1 bg-gray-200 border border-gray-400 divide-y divide-gray-400 rounded shadow-lg z-999;
         
         @variant dark {
             @apply bg-gray-800 border-gray-700 divide-gray-700;
@@ -55,4 +55,8 @@
 
 .form-input {
     @apply w-full mt-1 bg-gray-200 dark:bg-gray-800 border-0 rounded ring-primary focus:ring-2;
+}
+
+.modal:not(.is-open) {
+    @apply hidden;
 }

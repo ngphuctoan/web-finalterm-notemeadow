@@ -4,7 +4,7 @@
     &.ql-blank::before {
         content: attr(placeholder);
 
-        @apply absolute text-gray-500;
+        @apply pointer-events-none absolute text-gray-500;
     }
 
     @variant dark {
