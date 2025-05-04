@@ -29,6 +29,28 @@
     .spinner {
         @apply inline-block size-3 scale-125 border-3 border-t-transparent rounded-full animate-spin;
     }
+
+    .dropdown-menu {
+        @apply min-w-40 absolute py-1 bg-gray-200 border border-gray-400 divide-y divide-gray-400 rounded shadow-lg;
+        
+        @variant dark {
+            @apply bg-gray-800 border-gray-700 divide-gray-700;
+        }
+    }
+
+    .dropdown-item {
+        @apply px-4 py-2;
+
+        @variant hover {
+            @apply bg-gray-300;
+        }
+
+        @variant dark {
+            @variant hover {
+                @apply bg-gray-700;
+            }
+        }
+    }
 }
 
 .form-input {

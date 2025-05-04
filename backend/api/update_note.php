@@ -89,7 +89,7 @@ if (!empty($imagePaths)) {
 
 // Kiểm tra các trường cần cập nhật và xây dựng câu lệnh SQL
 foreach ($updateFields as $field) {
-    if (!empty($data[$field])) {
+    if (isset($data[$field])) {
         $fields[] = "$field = ?";
         $params[] = $data[$field];
     }

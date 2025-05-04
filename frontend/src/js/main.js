@@ -13,6 +13,8 @@ import Quill from "quill";
 import notes from "./stores/notes";
 import tags from "./stores/tags";
 
+import { computePosition, flip, offset, shift } from "@floating-ui/dom";
+
 window.API_URL = "http://localhost:8080";
 
 window._ = _;
@@ -137,6 +139,50 @@ document.addEventListener("alpine:init", () => {
                 this.loading = false;
             }
         };
+    });
+
+    Alpine.data("dropdown", function () {
+        return {
+            open: false,
+            dropdownClass: ["hidden"],
+
+            init() {
+                this.$watch("open", async () => {
+                    if (this.open) {
+                        this.$refs.dropdownMenu.classList.remove(...this.dropdownClass);
+                        await this.updatePos();
+                    } else {
+                        this.$refs.dropdownMenu.classList.add(...this.dropdownClass);
+                    }
+                });
+
+                this.$refs.toggleBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    this.toggle();
+                }
+
+                this.$refs.dropdownMenu.onclick = (e) =>
+                    e.stopPropagation();
+
+                this.$refs.dropdownMenu.classList.add(...this.dropdownClass);
+            },
+
+            toggle() {
+                this.open = !this.open;
+            },
+
+            async updatePos() {
+                const { x, y } = await computePosition(
+                    this.$refs.toggleBtn, this.$refs.dropdownMenu, {
+                        placement: "bottom-start",
+                        middleware: [offset(8), flip(), shift()]
+                    }
+                );
+
+                this.$refs.dropdownMenu.style.top = `${y}px`;
+                this.$refs.dropdownMenu.style.left = `${x}px`;
+            }
+        }
     });
 });
 
