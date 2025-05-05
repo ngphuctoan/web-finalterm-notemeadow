@@ -18,7 +18,6 @@ html(lang="en")
     
     body.bg-gray-100(x-data, class="font-[Plus_Jakarta_Sans] dark:text-white dark:bg-gray-950")
         +x-route("/", "app/pages/home")
-        +x-route("/old", "app/pages/old")
         +x-route("/edit/:id", "app/pages/edit")
 
         each route in ["login", "register", "forgot", "reset"]
