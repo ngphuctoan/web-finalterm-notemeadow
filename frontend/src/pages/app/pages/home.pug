@@ -11,26 +11,28 @@ mixin note-grid(pinned)
     )
         template(
             x-for=`note in $store.notes._list.filter((note) =>
-                note.is_pinned === ${+pinned}
+                note.is_pinned === ${+pinned} &&
+                $store.tags.actives.every((tagId) =>
+                    note.tags.map((tag) => tag.id)
+                        .includes(Number(tagId))
+                )
             )`,
             :key="note.id"
         )
-            .group.cursor-pointer.p-4.bg-gray-300.border.border-transparent.outline-primary.rounded(
+            .cursor-pointer.p-4.bg-gray-300.border.border-transparent.outline-primary.rounded(
                 @click="$router.navigate(`/edit/${note.id}`)",
                 class="dark:bg-gray-900 hover:border-gray-400 dark:hover:border-gray-800 focus:outline-3",
             )
-                .relative
+                .flex.items-center.gap-4
                     template(x-if="note.title")
-                        h5.text-lg.font-semibold.truncate.mb-4(
-                            x-text="note.title",
-                            class="group-hover:pe-12"
+                        h5.text-lg.font-semibold.truncate(
+                            x-text="note.title"
                         )
 
-                    div(x-data="dropdown", @click.outside="open = false")
-                        button.btn-icon.absolute.top-0.end-0(
+                    .ms-auto(x-data="dropdown", @mousedown.away="open = false")
+                        button.btn-icon(
                             type="button",
-                            x-ref="toggleBtn",
-                            class="not-group-hover:opacity-0"
+                            x-ref="toggleBtn"
                         )
                             i.fa.fa-ellipsis
 
@@ -43,6 +45,13 @@ mixin note-grid(pinned)
                                 i.fa.fa-fw(:class="`fa-thumbtack${note.is_pinned ? '-slash' : ''}`")
                                 span.ms-4(x-text="note.is_pinned ? 'Unpin' : 'Pin'")
 
+                            li.dropdown-item(@click=`
+                                $dispatch("set-selected-tags", note);
+                                MicroModal.show("modal-manage-tags");
+                            `)
+                                i.fa.fa-tag.fa-fw
+                                span.ms-4 Manage tags
+
                             li.dropdown-item
                                 i.fa.fa-lock.fa-fw
                                 span.ms-4 Lock
@@ -51,10 +60,15 @@ mixin note-grid(pinned)
                                 i.fa.fa-trash.fa-fw
                                 span.ms-4 Delete
 
-                p.leading-5.wrap-break-word.line-clamp-2(
-                    x-text="$store.notes.deltaToPreview(note.content)",
-                    class="group-hover:pe-12",
-                    :class="{ 'whitespace-pre-line line-clamp-5': !options.listView }"
+                .overflow-hidden.flex.gap-1.relative.mb-2
+                    template(x-for="tag in note.tags")
+                        span.text-nowrap.px-2.bg-gray-400.rounded(x-text="tag.name", class="dark:bg-gray-700")
+
+                    .absolute.inset-0.z-1.bg-linear-to-r.to-gray-300(class="from-90% dark:to-gray-900")
+
+                p.leading-5.wrap-break-word.line-clamp-2.mb-2(
+                    x-text="$store.notes.deltaToPreview(note.content)"
+                    :class="{ 'whitespace-pre-line line-clamp-4': !options.listView }"
                 )
 
 block header-left
@@ -84,7 +98,7 @@ block content
                     span.ms-2 Add tag
 
             template(x-if="$store.tags._list.length > 0")
-                ul.bg-gray-100.border.border-gray-300.divide-y.divide-gray-300.rounded(
+                ul.overflow-hidden.bg-gray-100.border.border-gray-300.divide-y.divide-gray-300.rounded(
                     class="dark:bg-gray-900 dark:border-gray-800 dark:divide-gray-800"
                 )
                     template(x-for="tag in $store.tags._list", :key="tag.id")
@@ -94,14 +108,14 @@ block content
                         )
                             input.hidden(type="checkbox", x-model="$store.tags.actives", :id="tag.id", :value="tag.id")
 
-                            label.cursor-pointer.flex-1.block.px-4.py-2(
+                            label.cursor-pointer.flex-1.flex.items-center.px-4.py-2(
                                 :for="tag.id",
                                 :class="{ 'text-primary': active }"
                             )
                                 i.fa.text-lg(:class="`fa-square${active ? '-check' : ' fa-regular'}`")
-                                span.ms-4(x-text="tag.name")
+                                p.flex-1.w-0.truncate.ms-4(x-text="tag.name")
 
-                            div(x-data="dropdown", @click.outside="open = false")
+                            div(x-data="dropdown", @mousedown.away="open = false")
                                 button.btn-icon.rounded-none(
                                     type="button",
                                     x-ref="toggleBtn"
@@ -109,11 +123,17 @@ block content
                                     i.fa.fa-ellipsis
 
                                 ul.dropdown-menu(x-ref="dropdownMenu")
-                                    li.dropdown-item
+                                    li.dropdown-item(@click=`
+                                        $dispatch('set-rename-tag', tag.id);
+                                        MicroModal.show("modal-rename-tag");
+                                    `)
                                         i.fa.fa-pencil.fa-fw
                                         span.ms-4 Edit
                                     
-                                    li.dropdown-item.text-rose-600(@click="$store.tags.delete(tag.id)")
+                                    li.dropdown-item.text-rose-600(@click=`
+                                        $dispatch('set-delete-tag', tag.id);
+                                        MicroModal.show("modal-delete-tag");
+                                    `)
                                         i.fa.fa-trash.fa-fw
                                         span.ms-4 Delete
         
@@ -164,16 +184,14 @@ block content
             +note-grid(false)
 
     #modal-new-tag.modal(aria-hidden="true")
-        .fixed.inset-0.z-50.grid.place-content-center.p-4(
+        .modal__overlay(
             tabindex="-1",
-            data-micromodal-close,
-            class="bg-black/50"
+            data-micromodal-close
         )
-            .w-full.max-w-md.rounded.bg-white.p-8.border.border-gray-300(
+            .modal-dialog(
                 role="dialog",
                 aria-modal="true",
-                aria-labelledby="modal-new-tag-title",
-                class="dark:bg-gray-900 dark:border-gray-800"
+                aria-labelledby="modal-new-tag-title"
             )
                 header.mb-4
                     h2.font-semibold.uppercase#modal-new-tag-title Add new tag
@@ -187,7 +205,7 @@ block content
                     `)
                         label(for="name")
                             span Tag name
-                            input.form-input(type="text", id="name", name="name")
+                            input#name.form-input(type="text", name="name")
 
                         .grid.gap-2.mt-2(class="sm:grid-cols-2")
                             button.btn.text-white.bg-primary(type="submit", :disabled="loading")
@@ -200,10 +218,161 @@ block content
                                 data-micromodal-close
                             ) Close
 
-    script(type="module").
-        import MicroModal from "micromodal";
+    #modal-rename-tag.modal(aria-hidden="true")
+        .modal__overlay(
+            tabindex="-1",
+            data-micromodal-close
+        )
+            .modal-dialog(
+                role="dialog",
+                aria-modal="true",
+                aria-labelledby="modal-rename-tag-title"
+            )
+                header.mb-4
+                    h2.font-semibold.uppercase#modal-rename-tag-title Rename tag
 
-        MicroModal.init({ disableScroll: true });
+                #modal-rename-tag-content(
+                    x-data="{ loading: false, id: -1 }",
+                    @set-rename-tag.window=`
+                        id = $event.detail;
+                        $refs.renameTags.name.value = $store.tags.get(id).name;
+                    `
+                )
+                    form.flex.flex-col.gap-4(
+                        x-ref="renameTags",
+                        @submit.prevent=`
+                            loading = true;
+
+                            await $store.tags.rename(id, $el.name.value);
+                            await $store.notes.fetch();
+
+                            loading = false;
+
+                            MicroModal.close("modal-rename-tag");
+                        `)
+                        p.opacity-70
+                            | Please enter a new name for tag "
+                            span.break-all(x-text="$store.tags.get(id)?.name")
+                            | ".
+                        
+                        label(for="name")
+                            span New tag name
+                            input#name.form-input(type="text", name="name")
+
+                        .grid.gap-2.mt-2(class="sm:grid-cols-2")
+                            button.btn.text-white.bg-primary(type="submit", :disabled="loading")
+                                .spinner.me-2(:class="{ 'hidden': !loading }")
+                                | Rename
+
+                            button.btn.text-primary.border(
+                                type="button",
+                                aria-label="Close modal",
+                                data-micromodal-close
+                            ) Close
+
+    #modal-delete-tag.modal(aria-hidden="true")
+        .modal__overlay(
+            tabindex="-1",
+            data-micromodal-close
+        )
+            .modal-dialog(
+                role="dialog",
+                aria-modal="true",
+                aria-labelledby="modal-delete-tag-title"
+            )
+                header.mb-4
+                    h2.font-semibold.uppercase#modal-delete-tag-title Confirmation
+                
+                #modal-delete-tag-content(
+                    x-data="{ loading: false, id: -1 }"
+                    @set-delete-tag.window="id = $event.detail"
+                )
+                    form#delete-tag.flex.flex-col.gap-4(@submit.prevent=`
+                        loading = true;
+
+                        await $store.tags.delete(id);
+                        await $store.notes.fetch();
+
+                        $store.tags.actives = [];
+                        
+                        loading = false;
+
+                        MicroModal.close("modal-delete-tag");
+                    `)
+                        p.opacity-70
+                            | Are you sure you want to delete tag "
+                            span.break-all(x-text="$store.tags.get(id)?.name")
+                            | "?
+
+                        .grid.gap-2.mt-2(class="sm:grid-cols-2")
+                            button.btn.text-white.bg-primary(type="submit", :disabled="loading")
+                                .spinner.me-2(:class="{ 'hidden': !loading }")
+                                | Delete
+
+                            button.btn.text-primary.border(
+                                type="button",
+                                aria-label="Close modal",
+                                data-micromodal-close
+                            ) Close
+
+    #modal-manage-tags.modal(aria-hidden="true")
+        .modal__overlay(
+            tabindex="-1",
+            data-micromodal-close
+        )
+            .modal-dialog(
+                role="dialog",
+                aria-modal="true",
+                aria-labelledby="modal-manage-tags-title"
+            )
+                header.mb-4
+                    h2.font-semibold.uppercase#modal-manage-tags-title Manage tags
+
+                #modal-manage-tags-content(
+                    x-data="{ loading: false, noteId: -1, selectedTags: [] }",
+                    @set-selected-tags.window=`
+                        noteId = $event.detail.id;
+                        selectedTags = $event.detail.tags.map((tag) => tag.id.toString());
+                    `
+                )
+                    form.flex.flex-col.gap-4(@submit.prevent=`
+                        loading = true;
+                        await $store.notes.setTags(noteId, selectedTags);
+                        loading = false;
+                        MicroModal.close("modal-manage-tags");
+                    `)
+                        ul.flex.flex-col.overflow-hidden.h-80.bg-gray-200.border.border-gray-300.divide-y.divide-gray-300.rounded(
+                            class="dark:bg-gray-950 dark:border-gray-800 dark:divide-gray-800"
+                        )
+                            template(x-for="tag in $store.tags._list")
+                                li
+                                    input.hidden(type="checkbox", x-model="selectedTags", :id="`mtag-${tag.id}`", :value="tag.id")
+
+                                    label.cursor-pointer.flex.items-center.gap-4.px-4.py-2(
+                                        :for="`mtag-${tag.id}`",
+                                        x-data=`{ get active() {
+                                            return selectedTags.includes(tag.id.toString());
+                                        } }`,
+                                        class="hover:not-active:bg-gray-300/50 dark:hover:not-active:bg-gray-900/50",
+                                        :class="{ 'text-primary': active }"
+                                    )
+                                        i.fa(:class="`fa-square${active ? '-check' : ' fa-regular'}`")
+                                        span(x-text="tag.name")
+
+                        .grid.gap-2.mt-2(class="sm:grid-cols-2")
+                            button.btn.text-white.bg-primary(type="submit", :disabled="loading")
+                                .spinner.me-2(:class="{ 'hidden': !loading }")
+                                | Save changes
+
+                            button.btn.text-primary.border(
+                                type="button",
+                                aria-label="Close modal",
+                                data-micromodal-close
+                            ) Close
+
+    .hidden(data-micromodal-trigger="modal-delete-tag")
+    .hidden(data-micromodal-trigger="modal-rename-tag")
+    .hidden(data-micromodal-trigger="modal-manage-tags")
     //- .flex.items-center.justify-between.p-4.bg-white.shadow(class="dark:bg-gray-900")
     //-     .text-xl.font-bold Note App
     //-     .flex.items-center.space-x-4

@@ -41,7 +41,7 @@ function decodeNumber($encoded, $key)
 
 try {
     // **Xử lý tạo ghi chú mới (POST)**
-    if ($_SERVER["REQUEST_METHOD"] === "POST") {
+    if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_GET["action"]) && $_GET["action"] === "create_note") {
         $title = isset($_POST["title"]) ? trim($_POST["title"]) : "";
         $content = isset($_POST["content"]) ? trim($_POST["content"]) : "";
         $is_pinned = isset($_POST["is_pinned"]) ? (int)$_POST["is_pinned"] : 0;
@@ -445,6 +445,45 @@ try {
         }
 
 
+    }
+
+    if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_GET["action"]) && $_GET["action"] === "update_tags") {
+        $noteId = $_POST["note_id"] ?? null;
+        $tagIds = $_POST["tag_ids"] ?? [];
+
+        if (!$noteId || !is_array($tagIds)) {
+            http_response_code(400);
+            echo json_encode(["error" => "Invalid input"]);
+            exit;
+        }
+
+        // Example user_id from session
+        $userId = $_SESSION["user_id"];
+
+        // First, check if the note belongs to this user
+        $stmt = $pdo->prepare("
+            SELECT id FROM notes
+            WHERE id = ? AND user_id = ?
+        ");
+        $stmt->execute([$noteId, $userId]);
+        if (!$stmt->fetch()) {
+            http_response_code(403);
+            echo json_encode(["error" => "Forbidden"]);
+            exit;
+        }
+
+        // Remove old tags
+        $stmt = $pdo->prepare("DELETE FROM note_tags WHERE note_id = ?");
+        $stmt->execute([$noteId]);
+
+        // Add new ones
+        $stmt = $pdo->prepare("INSERT INTO note_tags (note_id, tag_id) VALUES (?, ?)");
+        foreach ($tagIds as $tagId) {
+            $stmt->execute([$noteId, $tagId]);
+        }
+
+        echo json_encode(["success" => true]);
+        exit;
     }
 
     // Nếu không có action hợp lệ

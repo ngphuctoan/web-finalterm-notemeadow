@@ -27,6 +27,8 @@ window.axiosInstance = axios.create({
     withCredentials: true
 });
 
+window.formToJSON = formToJSON;
+
 window.Quill = Quill;
 
 window.notyf = new Notyf({
@@ -193,3 +195,7 @@ document.addEventListener("alpine:init", () => {
 });
 
 Alpine.start();
+
+document.addEventListener("pinecone:end", () => {
+    MicroModal.init({ disableScroll: true });
+})

@@ -31,7 +31,7 @@
     }
 
     .dropdown-menu {
-        @apply min-w-40 absolute py-1 bg-gray-200 border border-gray-400 divide-y divide-gray-400 rounded shadow-lg z-999;
+        @apply w-max absolute py-1 bg-gray-200 border border-gray-400 divide-y divide-gray-400 rounded shadow-lg z-25;
         
         @variant dark {
             @apply bg-gray-800 border-gray-700 divide-gray-700;
@@ -39,7 +39,7 @@
     }
 
     .dropdown-item {
-        @apply px-4 py-2;
+        @apply cursor-pointer ps-4 pe-20 py-2;
 
         @variant hover {
             @apply bg-gray-300;
@@ -59,4 +59,16 @@
 
 .modal:not(.is-open) {
     @apply hidden;
+}
+
+.modal__overlay {
+    @apply fixed inset-0 z-50 flex justify-center items-center p-4 bg-black/50;
+}
+
+.modal-dialog {
+    @apply overflow-y-auto w-full max-w-lg max-h-full rounded bg-white p-8 border border-gray-300;
+
+    @variant dark {
+        @apply dark:bg-gray-900 dark:border-gray-800;
+    }
 }
