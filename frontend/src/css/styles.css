@@ -51,6 +51,10 @@
             }
         }
     }
+
+    .placeholder-text {
+        @apply h-2 bg-black dark:bg-white opacity-10 rounded;
+    }
 }
 
 .form-input {

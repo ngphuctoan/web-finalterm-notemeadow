@@ -1,47 +1,54 @@
 export default function () {
     return {
-        _list: [],
+        list: [],
 
         init() {
             this.fetch();
         },
 
         async fetch() {
-            const { data } = await axiosInstance.get("/notes.php?action=view_notes");
+            try {
+                const { data } = await axiosInstance.get(
+                    "/notes.php?action=view_notes"
+                );
 
-            data.notes.forEach((note) => {
-                delete note.user_id;
-
-                try {
-                    note.content = JSON.parse(note.content);
-                } catch {
-                    note.content = [];
+                if (data.error) {
+                    notyf.error(data.error);
+                    return;
                 }
-            });
 
-            this._list = data.notes;
+                data.notes.forEach((note) => {
+                    delete note.user_id;
+
+                    try {
+                        note.content = JSON.parse(note.content);
+                    } catch {
+                        note.content = [];
+                    }
+                });
+
+                this.list = data.notes;
+            } catch (err) { handleServerError(err, "Cannot fetch notes."); }
         },
 
         get(id) {
-            return this._list.find(
+            return this.list.find(
                 (note) => note.id === Number(id)
             );
         },
 
         async update(id, updateData) {
             try {
-                const { data } = await axiosInstance.post("/update_note.php", {
-                    note_id: parseInt(id),
-                    ...updateData
-                });
+                const { data } = await axiosInstance.post(
+                    "/update_note.php", { note_id: id, ...updateData }
+                );
 
-                console.log(data.message);
+                if (!data.success) {
+                    notyf.error(data.message);
+                }
 
                 await this.fetch();
-            } catch (error) {
-                console.error("Error logging in:", error);
-                notyf.error("[500] Internal Server Error");
-            }
+            } catch (err) { handleServerError(err); }
         },
 
         async setTags(id, tags) {
@@ -51,13 +58,18 @@ export default function () {
                 formData.append("note_id", parseInt(id));
                 tags.forEach((tag) => formData.append("tag_ids[]", tag));
 
-                await axiosInstance.post("/notes.php?action=update_tags", formData);
+                const { data } = await axiosInstance.post(
+                    "/notes.php?action=update_tags", formData
+                );
+
+                if (data.error) {
+                    notyf.error(data.error);
+                } else {
+                    notyf.success("Tags have been set!");
+                }
 
                 await this.fetch();
-            } catch (error) {
-                console.error("Error logging in:", error);
-                notyf.error("[500] Internal Server Error");
-            }
+            } catch (err) { handleServerError(err); }
         },
 
         deltaToPreview(delta) {

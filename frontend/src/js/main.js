@@ -4,7 +4,7 @@ import PineconeRouter from "pinecone-router";
 
 import _ from "lodash";
 
-import axios, { formToJSON } from "axios";
+import axios, { formToJSON, isAxiosError } from "axios";
 
 import { Notyf } from "notyf";
 import "notyf/notyf.min.css";
@@ -31,12 +31,14 @@ window.formToJSON = formToJSON;
 
 window.Quill = Quill;
 
-window.notyf = new Notyf({
+const notyf = new Notyf({
     duration: 5000,
     position: { y: "top" },
     dismissible: true,
     ripple: false
 });
+
+window.notyf = notyf;
 
 Alpine.plugin(PineconeRouter);
 Alpine.plugin(persist);
@@ -199,3 +201,14 @@ Alpine.start();
 document.addEventListener("pinecone:end", () => {
     MicroModal.init({ disableScroll: true });
 })
+
+window.withLoading = async (setLoading, fn) => {
+    setLoading(true);
+    await fn();
+    setLoading(false);
+}
+
+window.handleServerError = (err, msg = "Something went wrong! Please try again later.") => {
+    notyf.error(msg);
+    console.error(err.stack || err);
+}
