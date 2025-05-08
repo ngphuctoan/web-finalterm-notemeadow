@@ -91,10 +91,6 @@ block header-left
     a.btn-icon(type="button", x-ref="closeEditor", href="/")
         i.fa.fa-arrow-left
 
-block header-right
-    btn.btn-icon(type="button")
-        i.fa.fa-ellipsis
-
 block content
     #editor-container(x-data="editor").flex-1.flex
         .flex.flex-col.gap-4.w-full.max-w-4xl.p-4.mx-auto(
@@ -140,6 +136,10 @@ block content
 
                     button.ql-image.btn-icon(type="button")
                         i.fa.fa-image
+
+                    .px-2
+
+                    +note-more-options
 
             #note-title
                 input.form-input.text-2xl.font-bold.p-5(

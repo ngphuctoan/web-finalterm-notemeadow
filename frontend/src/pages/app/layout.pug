@@ -15,6 +15,32 @@ mixin modal(id, title)
     //- Trigger
     .hidden(data-micromodal-trigger=id)
 
+mixin note-more-options(noteRef="note")
+    div(x-data="dropdown", @mousedown.away="open = false", class!=attributes.class)
+        button.btn-icon(type="button", x-ref="toggleBtn")
+            i.fa.fa-ellipsis
+
+        ul.dropdown-menu(x-ref="dropdownMenu")
+            li.dropdown-item(@click=`
+                $store.notes.update(${noteRef}.id, {
+                    is_pinned: 1 - ${noteRef}.is_pinned
+                });
+            `)
+                i.fa.fa-fw(:class=`"fa-thumbtack" + (${noteRef}.is_pinned ? "-slash" : "")`)
+                span.ms-4(x-text=`${noteRef}.is_pinned ? 'Unpin' : 'Pin'`)
+
+            li.dropdown-item(@click=`$dispatch('manage-tags', ${noteRef})`)
+                i.fa.fa-tag.fa-fw
+                span.ms-4 Manage tags
+
+            li.dropdown-item
+                i.fa.fa-lock.fa-fw
+                span.ms-4 Lock
+            
+            li.dropdown-item.text-rose-600
+                i.fa.fa-trash.fa-fw
+                span.ms-4 Delete
+
 script.
     Alpine.data("app", function () {
         return {

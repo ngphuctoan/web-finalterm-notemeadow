@@ -32,30 +32,7 @@ mixin note-grid(pinned)
                             x-text="note.title"
                         )
 
-                    .ms-auto(x-data="dropdown", @mousedown.away="open = false")
-                        button.btn-icon(type="button", x-ref="toggleBtn")
-                            i.fa.fa-ellipsis
-
-                        ul.dropdown-menu(x-ref="dropdownMenu")
-                            li.dropdown-item(@click=`
-                                $store.notes.update(note.id, {
-                                    is_pinned: 1 - note.is_pinned
-                                });
-                            `)
-                                i.fa.fa-fw(:class="`fa-thumbtack${note.is_pinned ? '-slash' : ''}`")
-                                span.ms-4(x-text="note.is_pinned ? 'Unpin' : 'Pin'")
-
-                            li.dropdown-item(@click="$dispatch('manage-tags', note)")
-                                i.fa.fa-tag.fa-fw
-                                span.ms-4 Manage tags
-
-                            li.dropdown-item
-                                i.fa.fa-lock.fa-fw
-                                span.ms-4 Lock
-                            
-                            li.dropdown-item.text-rose-600
-                                i.fa.fa-trash.fa-fw
-                                span.ms-4 Delete
+                    +note-more-options(class="ms-auto")
 
                 template(x-if="!note.password")
                     .overflow-hidden.flex.gap-1.relative.mb-2
