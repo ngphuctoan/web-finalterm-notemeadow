@@ -24,7 +24,7 @@ $user_id = $_SESSION["user_id"];
 // Kiểm tra phương thức yêu cầu
 if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
     // Cập nhật hình ảnh mặc định
-    $defaultImage = "https://cdn-icons-png.flaticon.com/512/9187/9187604.png"; // Đường dẫn hình ảnh mặc định
+    $defaultImage = ""; // Đường dẫn hình ảnh mặc định
     $stmt = $pdo->prepare("UPDATE users SET image = ? WHERE id = ?");
 
     if ($stmt->execute([$defaultImage, $user_id])) {

@@ -13,14 +13,14 @@ mixin note-grid(pinned)
             x-for=`note in $store.notes.list.filter((note) =>
                 note.is_pinned === ${+pinned} &&
                 $store.tags.actives.every((tagId) =>
-                    note.tags.map((tag) => tag.id)
-                        .includes(Number(tagId))
+                    note.tags.map((tag) => tag.id).includes(Number(tagId)) &&
+                    !note.password
                 )
             )`,
             :key="note.id"
         )
             .cursor-pointer.relative.p-4.bg-gray-300.border.border-transparent.outline-primary.rounded(
-                @click="$dispatch('prompt-unlock', note.id)",
+                @click="$router.navigate(`/edit/${note.id}`)",
                 class="dark:bg-gray-900 hover:border-gray-400 dark:hover:border-gray-800 focus:outline-3",
             )
                 .flex.items-center.gap-4
@@ -33,10 +33,7 @@ mixin note-grid(pinned)
                         )
 
                     .ms-auto(x-data="dropdown", @mousedown.away="open = false")
-                        button.btn-icon(
-                            type="button",
-                            x-ref="toggleBtn"
-                        )
+                        button.btn-icon(type="button", x-ref="toggleBtn")
                             i.fa.fa-ellipsis
 
                         ul.dropdown-menu(x-ref="dropdownMenu")
@@ -69,8 +66,8 @@ mixin note-grid(pinned)
 
                 template(x-if="note.password")
                     .flex.flex-wrap.gap-3.mt-3
-                        each w in [20, 30, 30, 20, 40]
-                            .placeholder-text(class=`w-${w}`)
+                        each w in ["w-20", "w-30", "w-30", "w-20", "w-40"]
+                            .placeholder-text(class=w)
 
                 template(x-if="!note.password")
                     p.leading-5.wrap-break-word.line-clamp-2.mb-2(
@@ -93,12 +90,25 @@ block header-center
         .spinner.hidden.absolute.right-3(class="top-1/2 -translate-y-1/2")
 
 block header-right
-    button.btn.flex.items-center.gap-4.p-0(type="button")
-        img.size-8.rounded-full(:src="`${API_URL}/api/${profile.image || 'uploads/Embargo_PBR.png'}`")
-        span(x-text="profile.display_name")
+    div(x-data="dropdown", @mousedown.away="open = false")
+        button.btn.flex.items-center.gap-4.p-0(type="button", x-ref="toggleBtn")
+            img.size-8.rounded-full(:src="`${API_URL}/api/${profile.image || 'uploads/Embargo_PBR.png'}`")
+            span(x-text="profile.display_name")
+
+        ul.dropdown-menu(x-ref="dropdownMenu")
+            li.dropdown-item
+                i.fa.fa-gear.fa-fw
+                span.ms-4 Settings
+            
+            li.dropdown-item.text-rose-600(@click="$dispatch('logout')")
+                i.fa.fa-arrow-right-from-bracket.fa-fw
+                span.ms-4 Logout
 
 block content
-    #notes.flex-1.grid(class="lg:grid-cols-[1fr_3fr] xl:grid-cols-[1fr_4fr]")
+    #notes.flex-1.grid(
+        x-init="$store.notes.opened = -1",
+        class="grid-rows-[auto_1fr] lg:grid-rows-1 lg:grid-cols-[1fr_3fr] xl:grid-cols-[1fr_4fr]"
+    )
         aside.flex.flex-col.gap-4.sticky.p-4.z-1(class="bg-white dark:bg-gray-900/50")
             .flex.justify-between.items-center
                 h2.text-lg.font-semibold.ms-2 Tags
@@ -126,10 +136,7 @@ block content
                                 p.flex-1.w-0.truncate.ms-4(x-text="tag.name")
 
                             div(x-data="dropdown", @mousedown.away="open = false")
-                                button.btn-icon.rounded-none(
-                                    type="button",
-                                    x-ref="toggleBtn"
-                                )
+                                button.btn-icon.rounded-none(type="button", x-ref="toggleBtn")
                                     i.fa.fa-ellipsis
 
                                 ul.dropdown-menu(x-ref="dropdownMenu")
@@ -142,7 +149,7 @@ block content
                                         span.ms-4 Delete
         
         section.flex.flex-col.gap-8.p-8
-            .flex.justify-between.items-center(
+            .flex.flex-wrap.items-center.gap-4(
                 x-data="{ greeting: 'Good ' }",
                 x-init=`
                     const hour = new Date().getHours();
@@ -151,14 +158,14 @@ block content
                     ][Math.floor((hour + 2) / 6) % 4];
                 `
             )
-                h1.hidden.text-xl.font-bold.pe-4(class="sm:inline-block lg:text-2xl")
+                h1.text-xl.font-bold.pe-4
                     span(x-text="greeting")
                     | , 
                     span.text-primary(x-text="profile.display_name")
                     | !
 
-                .flex.gap-2
-                    .flex.ms-auto
+                .flex.gap-2.ms-auto
+                    .flex
                         btn.btn.rounded-e-none(
                             type="button",
                             @click="options.listView = false",
@@ -186,23 +193,6 @@ block content
             +section-header("Other", "note-sticky")
 
             +note-grid(false)
-
-    mixin modal(id, title)
-        //- Modal
-        .modal(
-            id=id, aria-hidden="true",
-            @show="MicroModal.show($el.id)",
-            @close="MicroModal.close($el.id)"
-        )
-            .modal__overlay(tabindex="-1")
-                .modal-dialog(role="dialog", aria-labelledby=`${id}-title`)
-                    header.mb-4
-                        h2.font-semibold.uppercase(id=`${id}-title`)= title
-
-                    block
-
-        //- Trigger
-        .hidden(data-micromodal-trigger=name)
 
     +modal("new-tag", "Add new tag")
         div(x-data="{ loading: false }")
@@ -298,95 +288,7 @@ block content
                         data-micromodal-close
                     ) Close
 
-    +modal("note-pass-prompt", "Password prompt")
-        div(
-            x-data="{ loading: false, id: -1 }",
-            @prompt-unlock.window=`
-                id = $event.detail;
-
-                if ($store.notes.get(id)?.password) {
-                    $dispatch("show");
-                } else {
-                    $dispatch("goto-edit", id);
-                }
-            `,
-            @goto-edit="$router.navigate(`/edit/${$event.detail}`)"
-        )
-            form.flex.flex-col.gap-4(@submit.prevent=`
-                await withLoading((v) => loading = v, () => {
-                    if ($el.pass.value === $store.notes.get(id)?.password) {
-                        $dispatch("goto-edit", id);
-                    } else {
-                        notyf.error("Incorrect password");
-                    }
-                });
-
-                $dispatch("close");
-            `)
-                p.opacity-70
-                    | Please enter the password to unlock this note.
-
-                label(for="pass")
-                    span Password
-                    input#pass.form-input(type="password", name="pass", autocomplete="new-password")
-
-                .grid.gap-2.mt-2(class="sm:grid-cols-2")
-                    button.btn.text-white.bg-primary(type="submit", :disabled="loading")
-                        .spinner.me-2(:class="{ 'hidden': !loading }")
-                        | Unlock
-
-                    button.btn.text-primary.border(
-                        type="button",
-                        aria-label="Close modal",
-                        data-micromodal-close
-                    ) Close
-
-    +modal("manage-tags", "Manage tags")
-        div(
-            x-data="{ loading: false, noteId: -1, selectedTags: [] }",
-            @manage-tags.window=`
-                noteId = $event.detail.id;
-                selectedTags = $event.detail.tags.map(
-                    (tag) => tag.id.toString()
-                );
-
-                $dispatch("show");
-            `
-        )
-            form.flex.flex-col.gap-4(@submit.prevent=`
-                await withLoading((v) => loading = v, () =>
-                    $store.notes.setTags(noteId, selectedTags)
-                );
-
-                $dispatch("close");
-            `)
-                ul.flex.flex-col.overflow-hidden.h-80.bg-gray-200.border.border-gray-300.divide-y.divide-gray-300.rounded(
-                    class="dark:bg-gray-950 dark:border-gray-800 dark:divide-gray-800"
-                )
-                    template(x-for="tag in $store.tags.list")
-                        li
-                            input.hidden(type="checkbox", x-model="selectedTags", :id="`mtag-${tag.id}`", :value="tag.id")
-
-                            label.cursor-pointer.flex.items-center.gap-4.px-4.py-2(
-                                :for="`mtag-${tag.id}`",
-                                x-data=`{
-                                    get active() {
-                                        return selectedTags.includes(tag.id.toString());
-                                    }
-                                }`,
-                                class="hover:not-active:bg-gray-300/50 dark:hover:not-active:bg-gray-900/50",
-                                :class="{ 'text-primary': active }"
-                            )
-                                i.fa(:class="`fa-square${active ? '-check' : ' fa-regular'}`")
-                                span(x-text="tag.name")
-
-                .grid.gap-2.mt-2(class="sm:grid-cols-2")
-                    button.btn.text-white.bg-primary(type="submit", :disabled="loading")
-                        .spinner.me-2(:class="{ 'hidden': !loading }")
-                        | Save changes
-
-                    button.btn.text-primary.border(
-                        type="button",
-                        aria-label="Close modal",
-                        data-micromodal-close
-                    ) Close
+    +modal("logout", "Logging out")
+        div(@logout.window="$dispatch('show'); await logout(); $dispatch('close')")
+            .spinner
+            span.ms-4.opacity-70 You will be redirected to the login page soon!

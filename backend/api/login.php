@@ -27,13 +27,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Kiểm tra xem email có hợp lệ không
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        echo json_encode(["message" => "Email không hợp lệ."]);
+        echo json_encode(["logged_in" => false, "message" => "Email không hợp lệ."]);
         exit;
     }
 
     // Kiểm tra độ dài của mật khẩu (tối thiểu 6 ký tự)
     if (strlen($password) < 6) {
-        echo json_encode(["message" => "Mật khẩu phải có ít nhất 6 ký tự."]);
+        echo json_encode(["logged_in" => false, "message" => "Mật khẩu phải có ít nhất 6 ký tự."]);
         exit;
     }
 
@@ -45,24 +45,24 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         // Kiểm tra nếu người dùng tồn tại và mật khẩu đúng
         if ($user && password_verify($password, $user["password"])) {
-            // Kiểm tra trạng thái kích hoạt
-            if ($user["is_active"] == 0) {
-                echo json_encode(["message" => "Tài khoản chưa được kích hoạt. Vui lòng kiểm tra email để kích hoạt."]);
-                exit;
-            }
-
             // Lưu thông tin người dùng vào session nếu tài khoản đã được kích hoạt
             $_SESSION["user_id"] = $user["id"];
             $_SESSION["user_email"] = $user["email"]; // Lưu email vào session
             $_SESSION["is_active"] = $user["is_active"]; // Lưu email vào session
 
-            echo json_encode(["message" => "Đăng nhập thành công."]);
+            // Kiểm tra trạng thái kích hoạt
+            if ($user["is_active"] == 0) {
+                echo json_encode(["logged_in" => true, "message" => "Tài khoản chưa được kích hoạt. Vui lòng kiểm tra email để kích hoạt."]);
+                exit;
+            }
+
+            echo json_encode(["logged_in" => true, "message" => "Đăng nhập thành công."]);
         } else {
-            echo json_encode(["message" => "Tên đăng nhập hoặc mật khẩu không đúng."]);
+            echo json_encode(["logged_in" => false, "message" => "Tên đăng nhập hoặc mật khẩu không đúng."]);
         }
     } catch (PDOException $e) {
-        echo json_encode(["message" => "Lỗi cơ sở dữ liệu: " . $e->getMessage()]);
+        echo json_encode(["logged_in" => false, "message" => "Lỗi cơ sở dữ liệu: " . $e->getMessage()]);
     }
 } else {
-    echo json_encode(["message" => "Yêu cầu không hợp lệ."]);
+    echo json_encode(["logged_in" => false, "message" => "Yêu cầu không hợp lệ."]);
 }

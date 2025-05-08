@@ -15,7 +15,7 @@ CREATE TABLE `users` (
     `is_active`      TINYINT(4)   DEFAULT 0,
     `activation_token` VARCHAR(255) DEFAULT NULL,
     `preferences`    TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
-    `image`          VARCHAR(255) DEFAULT 'https://cdn-icons-png.flaticon.com/512/9187/9187604.png',
+    `image`          VARCHAR(255) DEFAULT '',
     `theme`          ENUM('light', 'dark') DEFAULT 'light',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;

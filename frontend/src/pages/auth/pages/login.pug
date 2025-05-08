@@ -1,5 +1,29 @@
 extends ../layout
 
+block script
+    script.
+        Alpine.data("login", function () {
+            return {
+                loading: false,
+        
+                async login() {
+                    await withLoading((v) => this.loading = v, async () => {
+                        try {
+                            const { data } = await axiosInstance.post(
+                                "/login.php", formToJSON(new FormData(this.$el))
+                            );
+            
+                            if (data.logged_in) {
+                                this.$router.navigate("/");
+                            } else {
+                                notyf.error(data.message);
+                            }
+                        } catch (err) { handleServerError(err) }
+                    });
+                }
+            };
+        });
+
 block title
     | Welcome back
 
