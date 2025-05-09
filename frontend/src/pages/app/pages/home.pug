@@ -12,16 +12,19 @@ mixin note-grid(pinned)
         template(
             x-for=`note in $store.notes.list.filter((note) =>
                 note.is_pinned === ${+pinned} &&
+                $store.notes.matchesQuery(note.id) &&
                 $store.tags.actives.every((tagId) =>
                     note.tags.map((tag) => tag.id).includes(Number(tagId)) &&
                     !note.password
                 )
-            )`,
+            ).sort((a, b) => options.sortByCreateDate === "1"
+                ? b.created_at - a.created_at
+                : b.modified_at - a.modified_at)`,
             :key="note.id"
         )
-            .cursor-pointer.relative.p-4.bg-gray-300.border.border-transparent.outline-primary.rounded(
+            .cursor-pointer.relative.p-4.border.border-transparent.rounded(
                 @click="$router.navigate(`/edit/${note.id}`)",
-                class="dark:bg-gray-900 hover:border-gray-400 dark:hover:border-gray-800 focus:outline-3",
+                :class="`${$store.notes.colors[note.note_color]} hover:outline-1 active:outline-3 active:outline-primary`",
             )
                 .flex.items-center.gap-4
                     template(x-if="note.password")
@@ -35,11 +38,9 @@ mixin note-grid(pinned)
                     +note-more-options(class="ms-auto")
 
                 template(x-if="!note.password")
-                    .overflow-hidden.flex.gap-1.relative.mb-2
+                    .overflow-hidden.flex.gap-1.mb-2
                         template(x-for="tag in note.tags")
-                            span.text-nowrap.px-2.bg-gray-400.rounded(x-text="tag.name", class="dark:bg-gray-700")
-
-                        .absolute.inset-0.z-1.bg-linear-to-r.to-gray-300(class="from-90% dark:to-gray-900")
+                            span.text-nowrap.px-2.rounded(x-text="tag.name", class="bg-black/25")
 
                 template(x-if="note.password")
                     .flex.flex-wrap.gap-3.mt-3
@@ -59,12 +60,23 @@ block header-left
     h1.text-xl.font-semibold.text-primary notemeadow
 
 block header-center
-    .relative.w-full
+    .relative.w-full(x-data="{ loading: false }")
         i.fa.fa-magnifying-glass.absolute.left-3(class="top-1/2 -translate-y-1/2")
 
-        input.form-input(placeholder="Search for notes...", class="ps-10 pe-9 !m-0")
+        input.form-input(
+            @input.debounce.300ms=`
+                loading = true;
+                $store.notes.searchQuery = $el.value;
+                setTimeout(() => loading = false, 300);
+            `,
+            placeholder="Search for notes...",
+            class="ps-10 pe-9 !m-0"
+        )
 
-        .spinner.hidden.absolute.right-3(class="top-1/2 -translate-y-1/2")
+        .spinner.absolute.right-3(
+            class="top-1/2 -translate-y-1/2",
+            :class="{ 'hidden': !loading }"
+        )
 
 block header-right
     div(x-data="dropdown", @mousedown.away="open = false")
@@ -159,9 +171,29 @@ block content
                             i.fa.fa-list
                             span.hidden.ms-4(class="sm:inline") List
 
-                    btn.btn.border(type="button")
-                        i.fa.fa-sort
-                        span.ms-4 Sort by
+                    select.form-input(x-model="options.sortByCreateDate", class="!w-40 !mt-0")
+                        option(value="0", selected) Last modified
+                        option(value="1") Last created
+
+            form.flex.flex-col.gap-2(
+                @submit.prevent=`
+                    const id = await $store.notes.create(new FormData($el));
+                    if (id) {
+                        $router.navigate("/edit/" + id);
+                    }
+                `,
+                class="sm:flex-row"
+            )
+                input.form-input(
+                    type="text",
+                    name="title",
+                    placeholder="Enter a title to create a new note!",
+                    class="!mt-0"
+                )
+
+                button.btn.text-white.bg-primary(type="submit")
+                    i.fa.fa-paper-plane
+                    span.ms-4 Create
 
             +section-header("Pinned", "thumbtack")
 

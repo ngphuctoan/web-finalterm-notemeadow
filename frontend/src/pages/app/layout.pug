@@ -21,11 +21,18 @@ mixin note-more-options(noteRef="note")
             i.fa.fa-ellipsis
 
         ul.dropdown-menu(x-ref="dropdownMenu")
-            li.dropdown-item(@click=`
-                $store.notes.update(${noteRef}.id, {
-                    is_pinned: 1 - ${noteRef}.is_pinned
-                });
-            `)
+            li.dropdown-item(
+                @click=`
+                    await $store.notes.update(${noteRef}.id, {
+                        is_pinned: 1 - ${noteRef}.is_pinned
+                    });
+
+                    if ($router.context.path.startsWith("/edit/")) {
+                        note = $store.notes.get(${noteRef}.id);
+                    }
+                `,
+                :class=`{ "text-primary": ${noteRef}.is_pinned }`
+            )
                 i.fa.fa-fw(:class=`"fa-thumbtack" + (${noteRef}.is_pinned ? "-slash" : "")`)
                 span.ms-4(x-text=`${noteRef}.is_pinned ? 'Unpin' : 'Pin'`)
 
@@ -33,13 +40,15 @@ mixin note-more-options(noteRef="note")
                 i.fa.fa-tag.fa-fw
                 span.ms-4 Manage tags
 
-            li.dropdown-item
+            li.dropdown-item(@click=`$dispatch('update-pass', ${noteRef}.id)`)
                 i.fa.fa-lock.fa-fw
                 span.ms-4 Lock
             
-            li.dropdown-item.text-rose-600
+            li.dropdown-item.text-rose-600(@click=`$dispatch('delete-note', ${noteRef})`)
                 i.fa.fa-trash.fa-fw
                 span.ms-4 Delete
+
+block style
 
 script.
     Alpine.data("app", function () {
@@ -47,7 +56,8 @@ script.
             profile: {},
 
             options: Alpine.$persist({
-                listView: false
+                listView: false,
+                sortByCreateDate: "0"
             }),
     
             init() {
@@ -220,3 +230,129 @@ block script
                         aria-label="Close modal",
                         data-micromodal-close
                     ) Close
+
+    +modal("delete-note", "Confirmation")
+        div(
+            x-data="{ loading: false, noteId: -1 }",
+            @delete-note.window=`
+                noteId = $event.detail.id;
+
+                $dispatch("prompt-unlock", {
+                    noteId,
+                    onSuccess: () => {
+                        $nextTick(() => $dispatch("show"));
+                    }
+                });
+            `
+        )
+            form.flex.flex-col.gap-4(@submit.prevent=`
+                await withLoading((v) => loading = v, () =>
+                    $store.notes.delete(noteId)
+                );
+
+                if ($router.context.path.startsWith("/edit/")) {
+                    $router.navigate("/");
+                }
+
+                $dispatch("close");
+            `)
+                p.opacity-70 Are you sure you want to delete this note?
+
+                .grid.gap-2.mt-2(class="sm:grid-cols-2")
+                    button.btn.text-white.bg-primary(type="submit", :disabled="loading")
+                        .spinner.me-2(:class="{ 'hidden': !loading }")
+                        | Delete
+
+                    button.btn.text-primary.border(
+                        type="button",
+                        aria-label="Close modal",
+                        data-micromodal-close
+                    ) Close
+
+    +modal("update-note-pass", "Update note password")
+        div(
+            x-data="{ loading: false, noteId: -1 }",
+            @update-pass.window=`
+                noteId = $event.detail;
+
+                if ($store.notes.get(noteId)?.password) {
+                    $dispatch("prompt-unlock", {
+                        noteId,
+                        onSuccess: () => $nextTick(
+                            () => $dispatch("show")
+                        )
+                    });
+                } else {
+                    $dispatch("show");
+                }
+            `
+        )
+            form.flex.flex-col.gap-4(@submit.prevent=`
+                await withLoading((v) => loading = v, () =>
+                    $store.notes.updatePass(noteId, new FormData($el))
+                );
+
+                $dispatch("close");
+            `)
+                label(for="pass")
+                    span Password
+                    input#pass.form-input(type="password", name="new_password", autocomplete="new-password")
+
+                label(for="confirm-pass")
+                    span Confirm password
+                    input#confirm-pass.form-input(type="password", name="confirm_password", autocomplete="new-password")
+
+                .grid.gap-2.mt-2(class="sm:grid-cols-3")
+                    button.btn.text-white.bg-primary(type="submit", :disabled="loading")
+                        .spinner.me-2(:class="{ 'hidden': !loading }")
+                        | Update
+
+                    button.btn.text-rose-600.border(
+                        type="button",
+                        @click=`
+                            $dispatch("close");
+                            $nextTick(() => $dispatch("delete-pass", noteId));
+                        `,
+                        :disabled="!$store.notes.get(noteId)?.password"
+                    )
+                        | Delete
+
+                    button.btn.text-primary.border(
+                        type="button",
+                        aria-label="Close modal",
+                        data-micromodal-close
+                    ) Close
+
+    +modal("delete-pass", "Confirmation")
+        div(
+            x-data="{ loading: false, noteId: -1 }",
+            @delete-pass.window=`
+                noteId = $event.detail;
+                $dispatch("show");
+            `
+        )
+            form.flex.flex-col.gap-4(@submit.prevent=`
+                await withLoading((v) => loading = v, async () => {
+                    const passData = new FormData();
+
+                    passData.append("new_password", "");
+                    passData.append("confirm_password", "");
+
+                    await $store.notes.updatePass(noteId, passData);
+                });
+
+                $dispatch("close");
+            `)
+                p.opacity-70 Are you sure you want to unlock this note?
+
+                .grid.gap-2.mt-2(class="sm:grid-cols-2")
+                    button.btn.text-white.bg-primary(type="submit", :disabled="loading")
+                        .spinner.me-2(:class="{ 'hidden': !loading }")
+                        | Delete
+
+                    button.btn.text-primary.border(
+                        type="button",
+                        aria-label="Close modal",
+                        data-micromodal-close
+                    ) Close
+            

@@ -1,14 +1,12 @@
 .ql-editor {
-    @apply leading-7 break-all p-5 bg-gray-200 rounded outline-primary;
+    @apply break-all p-5 rounded outline-primary;
+
+    line-height: 1.5;
 
     &.ql-blank::before {
         content: attr(placeholder);
 
         @apply pointer-events-none absolute text-gray-500;
-    }
-
-    @variant dark {
-        @apply bg-gray-900;
     }
 
     @variant focus {

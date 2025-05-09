@@ -3,6 +3,17 @@ export default function () {
     return {
         list: [],
 
+        colors: {
+            gray: "bg-gray-300 dark:bg-gray-900",
+            red: "bg-rose-300 dark:bg-rose-950",
+            yellow: "bg-amber-200 dark:bg-yellow-900",
+            green: "bg-green-300 dark:bg-green-900",
+            blue: "bg-sky-300 dark:bg-sky-900",
+            purple: "bg-purple-300 dark:bg-purple-950"
+        },
+
+        searchQuery: "",
+
         init() {
             this.fetch();
         },
@@ -26,6 +37,9 @@ export default function () {
                     } catch {
                         note.content = [];
                     }
+
+                    note.created_at = new Date(note.created_at);
+                    note.modified_at = new Date(note.modified_at);
                 });
 
                 this.list = data.notes;
@@ -36,6 +50,35 @@ export default function () {
             return this.list.find(
                 (note) => note.id === Number(id)
             );
+        },
+
+        matchesQuery(id) {
+            const q = this.searchQuery.toLowerCase();
+            const note = this.get(id);
+            const noteContent = this.deltaToPreview(note.content).toLowerCase();
+
+            // Ignores password-protected notes
+            if (q && note.password) {
+                return false;
+            }
+
+            return note.title?.toLowerCase().includes(q) || noteContent.includes(q);
+        },
+
+        async create(formData) {
+            try {
+                const { data } = await axiosInstance.post(
+                    "/notes.php?action=create_note", formData
+                );wdqwdwdqwqdwqdwqdwqdqwd
+
+                if (!data.id) {
+                    notyf.error(data.message);
+                }
+
+                await this.fetch();
+
+                return data.id;
+            } catch (err) { handleServerError(err); }
         },
 
         async update(id, updateData) {
@@ -73,11 +116,49 @@ export default function () {
             } catch (err) { handleServerError(err); }
         },
 
+        async updatePass(id, passData) {
+            try {
+                const { data } = await axiosInstance.put(
+                    "/notes.php?action=change_password", {
+                        note_id: id,
+                        ...formToJSON(passData),
+                        current_password: this.get(id)?.password || ""
+                    }
+                );
+
+                if (!data.message.includes("thay đổi")) {
+                    notyf.error(data.message);
+                } else {
+                    notyf.success(data.message);
+                }
+
+                await this.fetch();
+            } catch (err) { handleServerError(err); }
+        },
+
+        async delete(id) {
+            try {
+                const { data } = await axiosInstance.delete(
+                    "/delete_note.php", {
+                        data: { note_id: id }
+                    }
+                );
+
+                if (data.success) {
+                    notyf.success(data.message);
+                } else {
+                    notyf.error(data.message);
+                }
+
+                await this.fetch();
+            } catch (err) { handleServerError(err); }
+        },
+
         deltaToPreview(delta) {
             let preview = [];
         
             delta.forEach((op, i) => {
-                if ("insert" in op) {
+                if ("insert" in op && typeof op.insert === "string") {
                     preview.push(op.insert);
                 }
             });

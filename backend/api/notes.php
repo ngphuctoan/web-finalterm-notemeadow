@@ -7,11 +7,21 @@ session_start();
 // 🔥 Thêm header để bật CORS
 header("Access-Control-Allow-Origin: http://localhost:1234");
 header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: *");
+header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 
 // Trả về JSON
 header("Content-Type: application/json");
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    // Tell the browser it's okay
+    header("Access-Control-Allow-Origin: http://localhost:1234");
+    header("Access-Control-Allow-Credentials: true");
+    header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
+    header("Access-Control-Allow-Headers: Content-Type");
+    http_response_code(200);
+    exit;
+}
 
 
 //Kiểm tra đăng nhập
@@ -101,7 +111,7 @@ try {
         }
 
         $font_size = "16px";
-        $color_note = "#ffffff";
+        $color_note = "gray";
 
         // Chèn dữ liệu vào database
         $stmt = $pdo->prepare("
@@ -162,6 +172,7 @@ try {
             http_response_code(201);
             echo json_encode([
                 "message" => "Ghi chú đã được tạo thành công.",
+                "id" => $note_id,
                 "images" => $imagePaths
             ]);
         } else {
@@ -181,7 +192,7 @@ try {
         $new_password = $data["new_password"] ?? "";
         $confirm_password = $data["confirm_password"] ?? "";
 
-        if (!empty($note_id) && !empty($new_password) && !empty($confirm_password)) {
+        if (!empty($note_id)) {
             if ($new_password !== $confirm_password) {
                 echo json_encode(["message" => "Mật khẩu mới và xác nhận mật khẩu không khớp."]);
                 exit;

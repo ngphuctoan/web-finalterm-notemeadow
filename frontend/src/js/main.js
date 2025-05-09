@@ -4,7 +4,7 @@ import PineconeRouter from "pinecone-router";
 
 import _ from "lodash";
 
-import axios, { formToJSON, isAxiosError } from "axios";
+import axios, { formToJSON } from "axios";
 
 import { Notyf } from "notyf";
 import "notyf/notyf.min.css";

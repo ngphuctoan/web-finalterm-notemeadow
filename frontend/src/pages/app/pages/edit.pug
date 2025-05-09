@@ -27,6 +27,7 @@ block script
                     if (filePath) {
                         const range = quill.getSelection();
                         quill.insertEmbed(range.index, "image", filePath);
+                        onUpdate(quill.getContents());  // Updates the note after embedding the image
                     }
                 }
             });
@@ -73,12 +74,15 @@ block script
                         toolbarId: "editor-toolbar",
                         placeholder: "Write something legendary! Or just your grocery list...",
                         initialContent: this.note.content,
-                        onChange: (content) => this.$dispatch("update-note", content.ops),
+                        onUpdate: (content) => this.$dispatch("update-note", content.ops),
                         onImageUpload: async (file) => {
                             const path = await uploadImage(file);
                             return path ? `${API_URL}/api/${path}` : null;
                         }
                     });
+
+                    this.$el.querySelector(".ql-editor").className
+                        = `ql-editor ${this.$store.notes.colors[this.note.note_color]}`;
 
                     this.unlocked = true;
 
@@ -92,54 +96,53 @@ block header-left
         i.fa.fa-arrow-left
 
 block content
-    #editor-container(x-data="editor").flex-1.flex
-        .flex.flex-col.gap-4.w-full.max-w-4xl.p-4.mx-auto(
-            x-show="unlocked",
-            @update-note.debounce.2s=`
-                $store.notes.update($params.id, {
-                    content: JSON.stringify($event.detail)
-                })
-            `
-        )
-            #editor-toolbar-overflow.overflow-x-auto
-                #editor-toolbar.w-max.flex.justify-center.items-center.p-2.mx-auto
-                    select.ql-header.form-input(class="!w-40 !mt-0")
-                        each h in [1, 2, 3]
-                            option(value=h) Heading #{h}
-                        option(selected) Body
+    #editor-container.flex-1.flex(
+        x-data="editor",
+        @update-note.debounce.2s=`
+            $store.notes.update($params.id, {
+                content: JSON.stringify($event.detail)
+            })
+        `
+    )
+        .flex.flex-col.gap-4.w-full.max-w-4xl.p-4.mx-auto(x-show="unlocked")
+            #editor-toolbar.flex.flex-wrap.items-center.gap-y-2.p-2.mx-auto
+                select.ql-header.form-input(class="!w-40 !mt-0")
+                    each h in [1, 2, 3]
+                        option(value=h) Heading #{h}
+                    option(selected) Body
 
-                    .px-2
+                .px-2
 
-                    -
-                        const formats = {
-                            bold: {}, italic: {}, underline: {},
-                            strike: { icon: "strikethrough" }
-                        }
+                -
+                    const formats = {
+                        bold: {}, italic: {}, underline: {},
+                        strike: { icon: "strikethrough" }
+                    }
 
-                    each [format, options] of Object.entries(formats)
-                        button.btn-icon(type="button", class=`ql-${format}`)
-                            i.fa(class=`fa-${options.icon || format}`)
+                each [format, options] of Object.entries(formats)
+                    button.btn-icon(type="button", class=`ql-${format}`)
+                        i.fa(class=`fa-${options.icon || format}`)
 
-                    .px-2
+                .px-2
 
-                    -
-                        const aligns = {
-                            "": { icon: "left" },
-                            justify: {}, center: {}, right: {}
-                        }
+                -
+                    const aligns = {
+                        "": { icon: "left" },
+                        justify: {}, center: {}, right: {}
+                    }
 
-                    each [align, options] of Object.entries(aligns)
-                        button.ql-align.btn-icon(type="button", value=align)
-                            i.fa(class=`fa-align-${options.icon || align}`)
+                each [align, options] of Object.entries(aligns)
+                    button.ql-align.btn-icon(type="button", value=align)
+                        i.fa(class=`fa-align-${options.icon || align}`)
 
-                    .px-2
+                .px-2
 
-                    button.ql-image.btn-icon(type="button")
-                        i.fa.fa-image
+                button.ql-image.btn-icon(type="button")
+                    i.fa.fa-image
 
-                    .px-2
+                .px-2
 
-                    +note-more-options
+                +note-more-options
 
             #note-title
                 input.form-input.text-2xl.font-bold.p-5(
@@ -152,7 +155,7 @@ block content
                     )`
                 )
 
-            #editor
+            #editor(:style="`font-size: ${note.font_size}`")
 
         .flex-1.flex.justify-center.items-center(x-show="!unlocked")
             .spinner.scale-200
