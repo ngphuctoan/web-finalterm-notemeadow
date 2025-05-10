@@ -20,7 +20,6 @@ html(lang="en", x-data, :class="$store.theme")
         +x-route("/", "app/pages/home")
         +x-route("/edit/:id", "app/pages/edit")
         +x-route("/settings", "app/pages/settings")
-        +x-route("/settings-old", "settings")
 
         each route in ["login", "register", "forgot", "reset"]
             +x-route(`/${route}`, `auth/pages/${route}`)
