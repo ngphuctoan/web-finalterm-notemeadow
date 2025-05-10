@@ -201,19 +201,21 @@ export default function () {
         },
 
         async share(id, recipients) {
-            const { data } = await axiosInstance.put(
-                "/share_note.php", { note_id: id, recipients }
-            );
+            try {
+                const { data } = await axiosInstance.put(
+                    "/share_note.php", { note_id: id, recipients }
+                );
 
-            for (const { email, message } of data) {
-                if (message.includes("Đã")) {
-                    notyf.success(`[${email}] ${message}`);
-                } else {
-                    notyf.error(`[${email}] ${message}`);
+                for (const { email, message } of data) {
+                    if (message.includes("Đã")) {
+                        notyf.success(`[${email}] ${message}`);
+                    } else {
+                        notyf.error(`[${email}] ${message}`);
+                    }
                 }
-            }
 
-            await this.fetch();
+                await this.fetch();
+            } catch (err) { handleServerError(err); }
         },
 
         deltaToPreview(delta) {

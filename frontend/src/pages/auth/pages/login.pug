@@ -31,11 +31,11 @@ block content
     form#login.flex.flex-col.gap-4(x-data="login", @submit.prevent="login")
         label(for="email")
             span Email
-            input.form-input(type="email", id="email", name="email")
+            input#email.form-input(type="email", name="email")
 
         label(for="password")
             span Password
-            input.form-input(type="password", id="password", name="password")
+            input#password.form-input(type="password", name="password")
 
         .grid.gap-2.mt-2(class="sm:grid-cols-2")
             button.btn.text-white.bg-primary(type="submit", :disabled="loading")

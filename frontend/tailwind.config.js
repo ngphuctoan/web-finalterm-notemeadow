@@ -2,6 +2,7 @@ import colors from "tailwindcss/colors";
 import forms from "@tailwindcss/forms";
 
 export default {
+    darkMode: "class",
     theme: {
         extend: {
             colors: {

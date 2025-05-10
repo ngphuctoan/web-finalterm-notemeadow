@@ -3,6 +3,10 @@
 
 @config "../../tailwind.config.js";
 
+* {
+    @apply transition;
+}
+
 @layer base {
     .link {
         @apply underline text-primary;

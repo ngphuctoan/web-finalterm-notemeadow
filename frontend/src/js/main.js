@@ -45,6 +45,8 @@ document.addEventListener("alpine:init", () => {
         hash: true
     });
 
+    Alpine.store("theme", "auto");
+
     Alpine.store("notes", notes());
     Alpine.store("tags", tags());
 
@@ -106,9 +108,23 @@ window.withLoading = async (setLoading, fn) => {
 }
 
 window.handleServerError = (err, msg = "Something went wrong! Please try again later.") => {
-    notyf.error(msg);
-    console.error(err.stack || err);
-}
+    if (err?.isAxiosError && err.response) {
+        const serverMsg = err.response.data?.message;
+        if (serverMsg) {
+            notyf.error(serverMsg);
+            console.error("Axios error:", serverMsg);
+        } else {
+            notyf.error(msg);
+            console.error("Axios error:", err);
+        }
+    } else if (err?.message) {
+        notyf.error(err.message);
+        console.error("Error:", err);
+    } else {
+        notyf.error(msg);
+        console.error("Unknown error:", err);
+    }
+};
 
 window.uploadImage = async (file) => {
     const formData = new FormData();

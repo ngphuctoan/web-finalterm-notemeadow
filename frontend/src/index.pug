@@ -2,7 +2,7 @@ mixin x-route(route, path)
     template(x-route=route, x-template.target.app=`./pages/${path}.html`)
 
 doctype html
-html(lang="en")
+html(lang="en", x-data, :class="$store.theme")
     head
         meta(charset="UTF-8")
         meta(name="viewport", content="width=device-width, initial-scale=1")
@@ -16,9 +16,11 @@ html(lang="en")
 
         script(type="module", src="/src/js/main.js")
     
-    body.bg-gray-100(x-data, class="font-[Plus_Jakarta_Sans] dark:text-white dark:bg-gray-950")
+    body.bg-gray-100(class="font-[Plus_Jakarta_Sans] dark:text-white dark:bg-gray-950")
         +x-route("/", "app/pages/home")
         +x-route("/edit/:id", "app/pages/edit")
+        +x-route("/settings", "app/pages/settings")
+        +x-route("/settings-old", "settings")
 
         each route in ["login", "register", "forgot", "reset"]
             +x-route(`/${route}`, `auth/pages/${route}`)

@@ -1,10 +1,5 @@
 extends ../layout
 
-mixin section-header(title, icon)
-    h2.text-xl.font-semibold.pb-2.border-b.border-gray-300(class="dark:border-gray-800")
-        i.fa.text-primary(class=`fa-${icon}`)
-        span.ms-4= title
-
 mixin note-grid(pinned, shared)
     .grid.grid-cols-1.gap-4.divide-gray-800(
         :class="{ 'sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4': !options.listView }"
@@ -107,7 +102,7 @@ block header-right
             span(x-text="profile.display_name")
 
         ul.dropdown-menu(x-ref="dropdownMenu")
-            li.dropdown-item
+            li.dropdown-item(@click="$router.navigate('/settings')")
                 i.fa.fa-gear.fa-fw
                 span.ms-4 Settings
             

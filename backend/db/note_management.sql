@@ -16,7 +16,7 @@ CREATE TABLE `users` (
     `activation_token` VARCHAR(255) DEFAULT NULL,
     `preferences`    TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
     `image`          VARCHAR(255) DEFAULT '',
-    `theme`          ENUM('light', 'dark') DEFAULT 'light',
+    `theme`          ENUM('light', 'dark', 'auto') DEFAULT 'auto',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -33,7 +33,7 @@ CREATE TABLE `notes` (
     `password`     VARCHAR(50)  DEFAULT NULL,
     `image`        VARCHAR(255) DEFAULT NULL,
     `font_size`    VARCHAR(20)  DEFAULT '16px',
-    `note_color`   VARCHAR(7)   DEFAULT '#ffffff',
+    `note_color`   VARCHAR(7)   DEFAULT 'gray',
     `status_pass`  TINYINT(1)   NOT NULL DEFAULT 0,
     PRIMARY KEY (`id`),
     KEY `idx_title` (`title`),

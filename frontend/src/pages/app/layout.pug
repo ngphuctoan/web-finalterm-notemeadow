@@ -58,6 +58,11 @@ mixin note-more-options(noteRef="note")
                 i.fa.fa-trash.fa-fw
                 span.ms-4 Delete
 
+mixin section-header(title, icon)
+    h2.text-xl.font-semibold.pb-2.border-b.border-gray-300(class="dark:border-gray-800")
+        i.fa.text-primary(class=`fa-${icon}`)
+        span.ms-4= title
+
 block style
 
 script.
@@ -69,8 +74,31 @@ script.
                 listView: false,
                 sortByCreateDate: "0"
             }),
+
+            settings: {
+                tabs: ["Profile", "Security", "Appearance"],
+                icons: ["user-circle", "shield", "palette"],
+
+                active: Alpine.$persist("Profile")
+            },
     
             init() {
+                const media = window.matchMedia("(prefers-color-scheme: dark)");
+
+                const changeTheme = (e) => {
+                    this.$store.theme = e.matches ? "dark" : "light";
+                }
+
+                this.$watch("profile", () => {
+                    if (this.profile.theme === "auto") {
+                        media.addEventListener("change", changeTheme);
+                        this.$store.theme = media.matches ? "dark" : "light";
+                    } else {
+                        media.removeEventListener("change", changeTheme);
+                        this.$store.theme = this.profile.theme;
+                    }
+                });
+
                 this.fetchProfile();
 
                 for (const data of ["notes", "tags"]) {
@@ -105,6 +133,71 @@ script.
                 } catch {
                     await this.logout();
                 }
+            },
+
+            async updateProfile(profileData) {
+                try {
+                    const { data } = await axiosInstance.put(
+                        "/edit_user.php", profileData
+                    );
+
+                    if (data.message.includes("đã")) {
+                        notyf.success(data.message);
+                    } else {
+                        notyf.error(data.message);
+                    }
+
+                    await this.fetchProfile();
+                } catch (err) { handleServerError(err); }
+            },
+
+            async updateAvatar(filePath) {
+                try {
+                    const formData = new FormData();
+                    formData.append("image_path", filePath);
+
+                    const { data } = await axiosInstance.post(
+                        "/upload_avatar.php", formData
+                    );
+
+                    if (data.message.includes("successfully")) {
+                        notyf.success(data.message);
+                    } else {
+                        notyf.error(data.message);
+                    }
+
+                    await this.fetchProfile();
+                } catch (err) { handleServerError(err); }
+            },
+
+            async resetAvatar() {
+                try {
+                    const { data } = await axiosInstance.delete(
+                        "/delete_avatar.php"
+                    );
+
+                    if (data.message.includes("Đã")) {
+                        notyf.success(data.message);
+                    } else {
+                        notyf.error(data.message);
+                    }
+
+                    await this.fetchProfile();
+                } catch (err) { handleServerError(err); }
+            },
+
+            async changePassword({ current_password, new_password, confirm_password }) {
+                try {    
+                    const { data } = await axiosInstance.put(
+                        "/update_password.php", { current_password, new_password, confirm_password }
+                    );
+
+                    if (data.message.includes("thành công")) {
+                        notyf.success(data.message);
+                    } else {
+                        notyf.error(data.message);
+                    }
+                } catch (err) { handleServerError(err); }
             },
 
             async logout() {
