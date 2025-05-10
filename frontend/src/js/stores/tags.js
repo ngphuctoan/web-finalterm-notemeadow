@@ -3,10 +3,6 @@ export default function () {
         list: [],
         actives: [],
 
-        init() {
-            this.fetch();
-        },
-
         async fetch() {
             const { data: tags } = await axiosInstance.get(
                 "/tags.php?action=list_tags"

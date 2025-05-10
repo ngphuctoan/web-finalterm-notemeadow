@@ -38,7 +38,7 @@ block content
             input.form-input(type="password", id="password", name="password")
 
         .grid.gap-2.mt-2(class="sm:grid-cols-2")
-            button.btn.text-white.bg-primary(type="submit" :disabled="loading")
+            button.btn.text-white.bg-primary(type="submit", :disabled="loading")
                 .spinner.me-2(:class="{ 'hidden': !loading }")
                 | Login
 

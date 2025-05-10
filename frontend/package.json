@@ -6,23 +6,30 @@
     "scripts": {
         "start": "parcel"
     },
-    "devDependencies": {
-        "@parcel/transformer-pug": "^2.14.4",
-        "@tailwindcss/postcss": "^4.1.4",
-        "buffer": "^6.0.3"
-    },
     "dependencies": {
         "@alpinejs/persist": "^3.14.9",
         "@floating-ui/dom": "^1.7.0",
         "@tailwindcss/forms": "^0.5.10",
+        "@y/websocket-server": "^0.1.1",
         "alpinejs": "^3.14.9",
         "axios": "^1.9.0",
         "lodash": "^4.17.21",
         "micromodal": "^0.6.1",
         "notyf": "^3.10.0",
-        "parcel": "^2.14.4",
         "pinecone-router": "^7.0.3",
+        "quill": "^2.0.3",
+        "quill-cursors": "^4.0.4",
+        "y-indexeddb": "^9.0.12",
+        "y-quill": "^1.0.0",
+        "y-websocket": "^3.0.0",
+        "yjs": "^13.6.26"
+    },
+    "devDependencies": {
+        "@parcel/transformer-pug": "^2.14.4",
+        "@tailwindcss/postcss": "^4.1.4",
+        "buffer": "^6.0.3",
+        "parcel": "^2.14.4",
         "postcss": "^8.5.3",
-        "quill": "^2.0.3"
+        "process": "^0.11.10"
     }
 }

@@ -1,5 +1,19 @@
 extends ../layout
 
+block script
+    script.
+        async function sendRecoveryEmail(email) {
+            const { data } = await axiosInstance.post(
+                "/user_password_reset.php", { email }
+            );
+
+            if (data.message.includes("đã được gửi")) {
+                notyf.success(data.message);
+            } else {
+                notyf.error(data.message);
+            }
+        }
+
 block nav
     a.link.inline-block.mb-8(href="/login") &xlarr; Back to login
 
@@ -7,14 +21,20 @@ block title
     | Recover password
 
 block content
-    form#forgot.flex.flex-col.gap-4(x-data="register", @submit.prevent="register")
+    form#forgot.flex.flex-col.gap-4(
+        x-data="{ loading: false }",
+        @submit.prevent=`withLoading((v) => loading = v, () =>
+            sendRecoveryEmail($el.email.value)
+        )`
+    )
         p.opacity-70
             | If the account with this email exists, 
             | we will send you a confirmation email to reset your password.
 
         label(for="email")
             span Email
-            input.form-input(type="email", id="email", name="email")
+            input#email.form-input(type="email", name="email")
 
-        button.btn.mt-2.text-white.bg-primary(type="submit" :disabled="loading")
+        button.btn.mt-2.text-white.bg-primary(type="submit", :disabled="loading")
+            .spinner.me-2(:class="{ 'hidden': !loading }")
             | Send confirmation

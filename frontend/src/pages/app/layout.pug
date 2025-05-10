@@ -40,9 +40,19 @@ mixin note-more-options(noteRef="note")
                 i.fa.fa-tag.fa-fw
                 span.ms-4 Manage tags
 
-            li.dropdown-item(@click=`$dispatch('update-pass', ${noteRef}.id)`)
-                i.fa.fa-lock.fa-fw
-                span.ms-4 Lock
+            li.dropdown-item(
+                @click=`$dispatch("share-note", ${noteRef})`,
+                :class=`{ "text-primary": ${noteRef}.shared_by_me }`
+            )
+                i.fa.fa-share-nodes.fa-fw
+                span.ms-4(x-text=`${noteRef}.shared_by_me ? "Manage access" : "Share"`)
+
+            li.dropdown-item(
+                @click=`$dispatch("update-pass", ${noteRef}.id)`,
+                :class=`{ 'text-primary': ${noteRef}.password }`
+            )
+                i.fa.fa-fw(:class=`"fa-" + (${noteRef}.password ? "key" : "lock")`)
+                span.ms-4(x-text=`${noteRef}.password ? "Change password" : "Lock"`)
             
             li.dropdown-item.text-rose-600(@click=`$dispatch('delete-note', ${noteRef})`)
                 i.fa.fa-trash.fa-fw
@@ -62,6 +72,12 @@ script.
     
             init() {
                 this.fetchProfile();
+
+                for (const data of ["notes", "tags"]) {
+                    if (this.$store[data].list.length === 0) {
+                        this.$store[data].fetch();
+                    }
+                }
             },
     
             async fetchProfile() {
@@ -87,7 +103,7 @@ script.
         
                     this.profile = data;
                 } catch {
-                    this.$router.navigate("/login");
+                    await this.logout();
                 }
             },
 
@@ -275,16 +291,12 @@ block script
             @update-pass.window=`
                 noteId = $event.detail;
 
-                if ($store.notes.get(noteId)?.password) {
-                    $dispatch("prompt-unlock", {
-                        noteId,
-                        onSuccess: () => $nextTick(
-                            () => $dispatch("show")
-                        )
-                    });
-                } else {
-                    $dispatch("show");
-                }
+                $dispatch("prompt-unlock", {
+                    noteId,
+                    onSuccess: () => $nextTick(
+                        () => $dispatch("show")
+                    )
+                });
             `
         )
             form.flex.flex-col.gap-4(@submit.prevent=`
@@ -355,4 +367,82 @@ block script
                         aria-label="Close modal",
                         data-micromodal-close
                     ) Close
-            
+
+    +modal("share-note", "Manage access")
+        div(
+            x-data="{ loading: false, noteId: -1, shared : [] }",
+            @share-note.window=`
+                shared = [];
+
+                noteId = $event.detail.id;
+                if ($event.detail.shared) {
+                    $event.detail.shared.forEach(({ recipient_email, permission }) =>
+                        shared.push({ recipient: recipient_email, permission })
+                    );
+                }
+
+                $dispatch("prompt-unlock", {
+                    noteId,
+                    onSuccess: () => $nextTick(
+                        () => $dispatch("show")
+                    )
+                });
+            `
+        )
+            form.flex.flex-col.gap-4(@submit.prevent=`
+                await withLoading((v) => loading = v, () =>
+                    $store.notes.share(noteId, shared)
+                );
+
+                $dispatch("close");
+            `)
+                .flex.flex-col.gap-2(x-data="{ emailInput: '' }", class="sm:flex-row")
+                    input.form-input(type="email", x-model="emailInput", placeholder="Email address", class="!mt-0")
+                    button.btn.text-white.bg-primary(type="button", @click=`
+                        const { data } = await axiosInstance.post(
+                            "/check_user_exists.php", { email: emailInput || "" }
+                        );
+
+                        if (data.exists) {
+                            if (emailInput === profile.email) {
+                                notyf.error("Cannot add yourself as the recipient");
+                            } else if (shared.every((s) => s.recipient !== emailInput)) {
+                                shared.push({ recipient: emailInput, permission: "read" });
+                            }
+                        } else {
+                            notyf.error(data.error || "No user with that email found");
+                        }
+                    `)
+                        i.fa.fa-plus
+                        span.ms-4 Add
+
+                ul.flex.flex-col.overflow-hidden.h-80.bg-gray-200.border.border-gray-300.divide-y.divide-gray-300.rounded(
+                    class="dark:bg-gray-950 dark:border-gray-800 dark:divide-gray-800"
+                )
+                    template(x-for="s in shared")
+                        li.flex.flex-col.justify-between.gap-4.ps-4.pe-2.py-2(class="sm:flex-row sm:items-center")
+                            span.truncate(x-text="s.recipient")
+
+                            .shrink-0.flex.gap-2
+                                select.form-input(x-model="s.permission", class="sm:!w-30 !mt-0 !bg-gray-300 dark:!bg-gray-900")
+                                    option(value="read") Viewer
+                                    option(value="edit") Editor
+
+                                button.shrink-0.btn-icon.text-rose-600(
+                                    type="button",
+                                    @click=`shared = shared.filter(
+                                        (_s) => _s.recipient !== s.recipient
+                                    )`
+                                )
+                                    i.fa.fa-trash
+
+                .grid.gap-2.mt-2(class="sm:grid-cols-2")
+                    button.btn.text-white.bg-primary(type="submit", :disabled="loading")
+                        .spinner.me-2(:class="{ 'hidden': !loading }")
+                        | Share
+
+                    button.btn.text-primary.border(
+                        type="button",
+                        aria-label="Close modal",
+                        data-micromodal-close
+                    ) Close

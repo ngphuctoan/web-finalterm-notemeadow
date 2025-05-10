@@ -2,6 +2,7 @@
 export default function () {
     return {
         list: [],
+        sharedList: [],
 
         colors: {
             gray: "bg-gray-300 dark:bg-gray-900",
@@ -14,10 +15,6 @@ export default function () {
 
         searchQuery: "",
 
-        init() {
-            this.fetch();
-        },
-
         async fetch() {
             try {
                 const { data } = await axiosInstance.get(
@@ -28,6 +25,8 @@ export default function () {
                     notyf.error(data.error);
                     return;
                 }
+
+                const sharedByMe = await this.getSharedByMe();
 
                 data.notes.forEach((note) => {
                     delete note.user_id;
@@ -40,10 +39,47 @@ export default function () {
 
                     note.created_at = new Date(note.created_at);
                     note.modified_at = new Date(note.modified_at);
+
+                    note.shared = sharedByMe[note.id];
+                    note.shared_id = null;
                 });
 
-                this.list = data.notes;
+                const sharedWithMe = await this.getSharedWithMe();
+
+                sharedWithMe.forEach((note) => {
+                    try {
+                        note.content = JSON.parse(note.content);
+                    } catch {
+                        note.content = [];
+                    }
+                    
+                    note.created_at = new Date(note.created_at);
+                    // Copy created_at field for modified_at field to make sorting work
+                    note.modified_at = new Date(note.created_at);
+
+                    note.shared = null;
+                });
+
+                this.list = [...data.notes, ...sharedWithMe];
             } catch (err) { handleServerError(err, "Cannot fetch notes."); }
+        },
+
+        async getSharedByMe() {
+            const { data } = await axiosInstance.get(
+                "share_note.php?action=shared_by_me"
+            );
+
+            return data.reduce((note, { id, shared_id, ...others }) => {
+                if (!note[id]) note[id] = [];
+                note[id].push({ shared_id, ...others });
+                return note;
+            }, {});
+        },
+
+        async getSharedWithMe() {
+            return (await axiosInstance.get(
+                "share_note.php?action=shared_with_me"
+            )).data;
         },
 
         get(id) {
@@ -52,24 +88,34 @@ export default function () {
             );
         },
 
-        matchesQuery(id) {
+        matchesQuery(note) {
             const q = this.searchQuery.toLowerCase();
-            const note = this.get(id);
-            const noteContent = this.deltaToPreview(note.content).toLowerCase();
+            const matchesTitle = note.title?.toLowerCase().includes(q);
 
-            // Ignores password-protected notes
-            if (q && note.password) {
-                return false;
+            if (note.shared_id) return !q || matchesTitle;
+            if (note.password) return !q;
+
+            const noteContent = this.deltaToPreview(note.content).toLowerCase();
+            
+            return matchesTitle || noteContent.includes(q);
+        },
+
+        matchesTagFilters(note, filterTags) {
+            if (note.shared_id) {
+                return filterTags.length === 0;
             }
 
-            return note.title?.toLowerCase().includes(q) || noteContent.includes(q);
+            return filterTags.every((tagId) =>
+                note.tags.map((tag) => tag.id).includes(Number(tagId)) &&
+                !note.password
+            );
         },
 
         async create(formData) {
             try {
                 const { data } = await axiosInstance.post(
                     "/notes.php?action=create_note", formData
-                );wdqwdwdqwqdwqdwqdwqdqwd
+                );
 
                 if (!data.id) {
                     notyf.error(data.message);
@@ -152,6 +198,22 @@ export default function () {
 
                 await this.fetch();
             } catch (err) { handleServerError(err); }
+        },
+
+        async share(id, recipients) {
+            const { data } = await axiosInstance.put(
+                "/share_note.php", { note_id: id, recipients }
+            );
+
+            for (const { email, message } of data) {
+                if (message.includes("Đã")) {
+                    notyf.success(`[${email}] ${message}`);
+                } else {
+                    notyf.error(`[${email}] ${message}`);
+                }
+            }
+
+            await this.fetch();
         },
 
         deltaToPreview(delta) {

@@ -45,16 +45,13 @@ if ($token) {
 
 // Xử lý yêu cầu POST
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    // Lấy dữ liệu JSON từ yêu cầu
-    $input = json_decode(file_get_contents("php://input"), true);
-
     if (!$reset) {
         http_response_code(400);
         echo json_encode(["message" => "Mã xác thực không hợp lệ hoặc đã hết hạn."]);
         exit;
     }
 
-    $new_password = $input["new_password"] ?? "";
+    $new_password = $_POST["new_password"] ?? "";
 
     if (empty($new_password) || strlen($new_password) < 6) {
         http_response_code(400);

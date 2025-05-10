@@ -58,7 +58,7 @@
 }
 
 .form-input {
-    @apply w-full mt-1 bg-gray-200 dark:bg-gray-800 border-0 rounded ring-primary focus:ring-2;
+    @apply w-full mt-1 bg-gray-200 dark:bg-gray-800 border-0 rounded outline-primary outline-offset-0 ring-0 focus:outline-3;
 }
 
 .modal:not(.is-open) {

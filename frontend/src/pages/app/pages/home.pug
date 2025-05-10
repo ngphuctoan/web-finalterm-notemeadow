@@ -5,19 +5,21 @@ mixin section-header(title, icon)
         i.fa.text-primary(class=`fa-${icon}`)
         span.ms-4= title
 
-mixin note-grid(pinned)
+mixin note-grid(pinned, shared)
     .grid.grid-cols-1.gap-4.divide-gray-800(
         :class="{ 'sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4': !options.listView }"
     )
         template(
-            x-for=`note in $store.notes.list.filter((note) =>
-                note.is_pinned === ${+pinned} &&
-                $store.notes.matchesQuery(note.id) &&
-                $store.tags.actives.every((tagId) =>
-                    note.tags.map((tag) => tag.id).includes(Number(tagId)) &&
-                    !note.password
-                )
-            ).sort((a, b) => options.sortByCreateDate === "1"
+            x-for=`note in $store.notes.list.filter((note) => {
+                const matchesFilter =
+                    $store.notes.matchesTagFilters(note, $store.tags.actives) &&
+                    $store.notes.matchesQuery(note);
+
+                if (${pinned}) return matchesFilter && note.is_pinned;
+                if (${shared}) return matchesFilter && note.shared_id;
+
+                return matchesFilter && !note.is_pinned && !note.shared_id;
+            })?.sort((a, b) => options.sortByCreateDate === "1"
                 ? b.created_at - a.created_at
                 : b.modified_at - a.modified_at)`,
             :key="note.id"
@@ -26,34 +28,54 @@ mixin note-grid(pinned)
                 @click="$router.navigate(`/edit/${note.id}`)",
                 :class="`${$store.notes.colors[note.note_color]} hover:outline-1 active:outline-3 active:outline-primary`",
             )
+                - const isLocked = "note.password && !note.shared_id";
+
                 .flex.items-center.gap-4
-                    template(x-if="note.password")
+                    template(x-if=isLocked)
                         .placeholder-text.w-40
 
-                    template(x-if="!note.password && note.title")
+                    template(x-if=`!(${isLocked}) && note.title`)
                         h5.text-lg.font-semibold.truncate(
-                            x-text="note.title"
+                            x-text="note.title",
+                            :class="{ 'leading-[40px]': note.shared_id }"
                         )
 
-                    +note-more-options(class="ms-auto")
+                    template(x-if="note.shared")
+                        i.fa.fa-share.text-primary
 
-                template(x-if="!note.password")
+                    if !shared
+                        +note-more-options(class="ms-auto")
+
+                template(x-if=`!(${isLocked})`)
                     .overflow-hidden.flex.gap-1.mb-2
                         template(x-for="tag in note.tags")
                             span.text-nowrap.px-2.rounded(x-text="tag.name", class="bg-black/25")
 
-                template(x-if="note.password")
+                template(x-if=isLocked)
                     .flex.flex-wrap.gap-3.mt-3
                         each w in ["w-20", "w-30", "w-30", "w-20", "w-40"]
                             .placeholder-text(class=w)
 
-                template(x-if="!note.password")
+                template(x-if=`!(${isLocked})`)
                     p.leading-5.wrap-break-word.line-clamp-2.mb-2(
-                        x-text="$store.notes.deltaToPreview(note.content)"
                         :class="{ 'whitespace-pre-line line-clamp-4': !options.listView }"
                     )
+                        template(x-if="note.shared_id")
+                            ul.list-disc.list-inside.opacity-70
+                                li.mb-1
+                                    strong.font-bold Shared by: 
+                                    span(x-text="note.shared_by")
+                                li
+                                    strong.font-bold Permission: 
+                                    span(x-text=`
+                                        note.permission.charAt(0).toUpperCase() +
+                                        note.permission.slice(1)
+                                    `)
 
-                template(x-if="note.password")
+                        template(x-if="!note.shared_id")
+                            span(x-text="$store.notes.deltaToPreview(note.content)")
+
+                template(x-if=isLocked)
                     i.fa.fa-lock.fa-xl.absolute(class="top-1/2 left-1/2 -translate-1/2")
 
 block header-left
@@ -81,7 +103,7 @@ block header-center
 block header-right
     div(x-data="dropdown", @mousedown.away="open = false")
         button.btn.flex.items-center.gap-4.p-0(type="button", x-ref="toggleBtn")
-            img.size-8.rounded-full(:src="`${API_URL}/api/${profile.image || 'uploads/Embargo_PBR.png'}`")
+            img.size-8.rounded-full(:src="profile.image ? `${API_URL}/api/${profile.image}` : DEFAULT_PROFILE_IMAGE")
             span(x-text="profile.display_name")
 
         ul.dropdown-menu(x-ref="dropdownMenu")
@@ -197,11 +219,15 @@ block content
 
             +section-header("Pinned", "thumbtack")
 
-            +note-grid(true)
+            +note-grid(true, false)
 
             +section-header("Other", "note-sticky")
 
-            +note-grid(false)
+            +note-grid(false, false)
+
+            +section-header("Shared", "share")
+
+            +note-grid(false, true)
 
     +modal("new-tag", "Add new tag")
         div(x-data="{ loading: false }")

@@ -3,14 +3,24 @@ extends ../layout
 block script
     script(type="module").
         import Quill from "quill";
+        import QuillCursors from "quill-cursors";
 
-        function createQuill({ id, toolbarId, placeholder, initialContent, onUpdate, onImageUpload }) {
+        import * as Y from "yjs";
+        import { QuillBinding } from "y-quill";
+        import { WebsocketProvider } from "y-websocket";
+
+        Quill.register("modules/cursors", QuillCursors);
+
+        function createQuill({ id, toolbarId, placeholder, note, onUpdate, onImageUpload }) {
             const quill = new Quill(`#${id}`, {
-                modules: { toolbar: `#${toolbarId}` }
+                modules: {
+                    cursors: true,
+                    toolbar: `#${toolbarId}`,
+                    history: { userOnly: true }
+                }
             });
 
             quill.root.setAttribute("placeholder", placeholder);
-            quill.setContents(initialContent);
 
             quill.getModule("toolbar").addHandler("image", () => {
                 const input = document.createElement("input");
@@ -32,11 +42,39 @@ block script
                 }
             });
 
-            quill.on("text-change", (delta, oldDelta, source) => {
-                if (source === "user") {
-                    onUpdate(quill.getContents());
+            if (note.shared_id || note.shared) {
+                const ydoc = new Y.Doc();
+                const provider = new WebsocketProvider(
+                    "ws://localhost:4321", `sn_${note.id}`, ydoc
+                );
+                const ytext = ydoc.getText("quill");
+
+                ytext.observe(() => {
+                    if (note.shared || note.permission === "edit") {
+                        onUpdate(ytext.toDelta());
+                    }
+                });
+
+                provider.once("synced", () => {
+                    if (ytext.length === 0) {
+                        ytext.applyDelta(note.content);
+                    }
+                });
+
+                if (note.permission === "read") {
+                    quill.enable(false);
                 }
-            });
+
+                new QuillBinding(ytext, quill);
+            } else {
+                quill.on("text-change", (delta, oldDelta, source) => {
+                    if (source === "user") {
+                        onUpdate(quill.getContents().ops);
+                    }
+                });
+
+                quill.setContents(note.content);
+            }
 
             return quill;
         }
@@ -45,7 +83,11 @@ block script
             return {
                 unlocked: false,
 
-                init() {
+                async init() {
+                    if (this.$store.notes.list.length === 0) {
+                        await this.$store.notes.fetch();
+                    }
+
                     const id = Number(this.$params.id);
                     this.note = this.$store.notes.get(id);
 
@@ -73,8 +115,8 @@ block script
                         id: "editor",
                         toolbarId: "editor-toolbar",
                         placeholder: "Write something legendary! Or just your grocery list...",
-                        initialContent: this.note.content,
-                        onUpdate: (content) => this.$dispatch("update-note", content.ops),
+                        note: this.note,
+                        onUpdate: (content) => this.$dispatch("update-note", content),
                         onImageUpload: async (file) => {
                             const path = await uploadImage(file);
                             return path ? `${API_URL}/api/${path}` : null;
@@ -87,6 +129,10 @@ block script
                     this.unlocked = true;
 
                     quill.focus();
+                },
+
+                get noteExists() {
+                    return this.note !== undefined;
                 }
             }
         });
@@ -140,22 +186,25 @@ block content
                 button.ql-image.btn-icon(type="button")
                     i.fa.fa-image
 
-                .px-2
-
-                +note-more-options
+                template(x-if="noteExists && !note.shared_id")
+                    .px-2
+                        +note-more-options
 
             #note-title
                 input.form-input.text-2xl.font-bold.p-5(
                     type="text",
-                    :value="typeof note !== 'undefined' ? note.title : ''",
+                    :value="noteExists ? note.title : ''",
                     placeholder="Note title",
-                    class="dark:!bg-gray-900",
+                    class="!bg-gray-300 dark:!bg-gray-900",
                     @input.debounce.2s=`$store.notes.update(
                         $params.id, { title: $el.value }
                     )`
                 )
 
-            #editor(:style="`font-size: ${note.font_size}`")
+            #editor(
+                class="!overflow-visible",
+                :style="`font-size: ${noteExists ? note.font_size : '1rem'}`"
+            )
 
         .flex-1.flex.justify-center.items-center(x-show="!unlocked")
             .spinner.scale-200
