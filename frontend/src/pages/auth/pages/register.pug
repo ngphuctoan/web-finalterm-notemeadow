@@ -9,15 +9,23 @@ block script
                 async register() {
                     await withLoading((v) => this.loading = v, async () => {
                         try {
-                            const { data } = await axiosInstance.post(
+                            const { data: registerData } = await axiosInstance.post(
                                 "/register.php", formToJSON(new FormData(this.$el))
                             );
             
-                            if (data.message.includes("thành công")) {
-                                this.$router.navigate("/login");
-                                notyf.success(data.message);
+                            if (!registerData.message.includes("thành công")) {
+                                notyf.error(registerData.message);
+                                return;
+                            }
+
+                            const { data: loginData } = await axiosInstance.post(
+                                "/login.php", formToJSON(new FormData(this.$el))
+                            );
+            
+                            if (loginData.logged_in) {
+                                this.$router.navigate("/");
                             } else {
-                                notyf.error(data.message);
+                                notyf.error(loginData.message);
                             }
                         } catch (err) { handleServerError(err) }
                     });

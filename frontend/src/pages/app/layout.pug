@@ -28,7 +28,7 @@ mixin note-more-options(noteRef="note")
                     });
 
                     if ($router.context.path.startsWith("/edit/")) {
-                        note = $store.notes.get(${noteRef}.id);
+                        $dispatch("refresh-editor");
                     }
                 `,
                 :class=`{ "text-primary": ${noteRef}.is_pinned }`
@@ -81,8 +81,28 @@ script.
 
                 active: Alpine.$persist("Profile")
             },
+
+            syncStatus: "ok",
+            lastSyncedTime: "",
+
+            setSyncStatus(status) {
+                this.syncStatus = status;
+                if (status === "ok") {
+                    this.lastSyncedTime = new Date().toLocaleString([], {
+                        hour: "2-digit", minute: "2-digit"
+                    });
+                }
+            },
     
-            init() {
+            async init() {
+                const { data: loginStatus } = await axiosInstance.get(
+                    "/check_login.php"
+                );
+
+                if (!loginStatus.logged_in) {
+                    await this.logout();
+                }
+
                 const media = window.matchMedia("(prefers-color-scheme: dark)");
 
                 const changeTheme = (e) => {
@@ -99,13 +119,19 @@ script.
                     }
                 });
 
-                this.fetchProfile();
+                await this.fetchProfile();
+
+                if (!this.profile.is_active && this.$router.context.path === "/") {
+                    notyf.error("Account is not activated! Please check your email.");
+                }
 
                 for (const data of ["notes", "tags"]) {
                     if (this.$store[data].list.length === 0) {
-                        this.$store[data].fetch();
+                        await this.$store[data].fetch();
                     }
                 }
+
+                this.setSyncStatus("ok");
             },
     
             async fetchProfile() {
@@ -115,24 +141,18 @@ script.
                     );
 
                     if (data.message) {
-                        if (data.includes("Chưa đăng nhập")) {
-                            throw new Error(data.message);
-                        }
-
                         notyf.error(data.message);
                         return;
                     }
         
-                    delete data["password"];
+                    delete data.password;
 
-                    if (!data["is_active"]) {
-                        notyf.error("Account is not activated! Please check your email.");
-                    }
+                    data.image = data.image
+                        ? `${API_URL}/api/${data.image}`
+                        : placeholderAvatar(data.display_name, data.email);
         
                     this.profile = data;
-                } catch {
-                    await this.logout();
-                }
+                } catch { handleServerError(err); }
             },
 
             async updateProfile(profileData) {
@@ -486,6 +506,10 @@ block script
                 await withLoading((v) => loading = v, () =>
                     $store.notes.share(noteId, shared)
                 );
+
+                if ($router.context.path.startsWith("/edit/")) {
+                    $dispatch("refresh-editor");
+                }
 
                 $dispatch("close");
             `)

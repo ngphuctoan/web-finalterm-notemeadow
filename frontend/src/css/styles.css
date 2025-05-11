@@ -80,3 +80,25 @@
         @apply dark:bg-gray-900 dark:border-gray-800;
     }
 }
+
+[class*="hint--"]::after {
+    @apply !font-[inherit] !text-xs !whitespace-pre;
+}
+
+#sync-status-btn::after {
+    @apply left-8 top-8;
+}
+
+range-slider {
+    [data-track] {
+        @apply bg-gray-300 dark:bg-gray-700;
+    }
+
+    [data-track-fill] {
+        @apply bg-primary;
+    }
+
+    [data-thumb] {
+        @apply bg-primary;
+    }
+}

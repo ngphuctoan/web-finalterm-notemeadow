@@ -36,10 +36,16 @@ mixin note-grid(pinned, shared)
                         )
 
                     template(x-if="note.shared")
-                        i.fa.fa-share.text-primary
+                        i.fa.fa-share-nodes.text-primary
+
+                    template(x-if="note.shared_id")
+                        i.fa.fa-users.text-primary
 
                     if !shared
                         +note-more-options(class="ms-auto")
+
+                template(x-if="note.shared_id")
+                    p.text-sm.opacity-70(x-text="note.created_at.toLocaleString()")
 
                 template(x-if=`!(${isLocked})`)
                     .overflow-hidden.flex.gap-1.mb-2
@@ -60,7 +66,7 @@ mixin note-grid(pinned, shared)
                                 li.mb-1
                                     strong.font-bold Shared by: 
                                     span(x-text="note.shared_by")
-                                li
+                                li.mb-1
                                     strong.font-bold Permission: 
                                     span(x-text=`
                                         note.permission.charAt(0).toUpperCase() +
@@ -98,7 +104,7 @@ block header-center
 block header-right
     div(x-data="dropdown", @mousedown.away="open = false")
         button.btn.flex.items-center.gap-4.p-0(type="button", x-ref="toggleBtn")
-            img.size-8.rounded-full(:src="profile.image ? `${API_URL}/api/${profile.image}` : DEFAULT_PROFILE_IMAGE")
+            img.size-8.rounded-full(:src="profile.image")
             span(x-text="profile.display_name")
 
         ul.dropdown-menu(x-ref="dropdownMenu")
@@ -220,7 +226,7 @@ block content
 
             +note-grid(false, false)
 
-            +section-header("Shared", "share")
+            +section-header("Shared to you", "inbox")
 
             +note-grid(false, true)
 

@@ -41,7 +41,7 @@ block content
                 +section-header("Profile", "user")
 
                 .flex.flex-wrap.items-center.gap-4
-                    img.size-20.rounded-full(:src="profile.image ? `${API_URL}/api/${profile.image}` : DEFAULT_PROFILE_IMAGE")
+                    img.size-20.rounded-full(:src="profile.image")
                     
                     .flex-1
                         p.text-lg(x-text="profile.display_name")
@@ -77,9 +77,9 @@ block content
                             span Full name
                             input#full-name.form-input(type="text", name="display_name", :value="profile.display_name")
 
-                        label.flex-1(for="email")
+                        label.flex-1.opacity-50(for="email")
                             span Email
-                            input#email.form-input(type="email", name="email", :value="profile.email", disabled, readonly)
+                            input#email.form-input.cursor-not-allowed(type="email", name="email", :value="profile.email", disabled, readonly)
 
                     button.btn.w-max.text-white.bg-primary(type="submit", :disabled="loading")
                         .spinner.me-2(:class="{ 'hidden': !loading }")

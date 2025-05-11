@@ -133,12 +133,18 @@ export default function () {
                     "/update_note.php", { note_id: id, ...updateData }
                 );
 
+                await this.fetch();
+
                 if (!data.success) {
                     notyf.error(data.message);
+                    return false;
+                } else {
+                    return true;
                 }
-
-                await this.fetch();
-            } catch (err) { handleServerError(err); }
+            } catch (err) {
+                handleServerError(err);
+                return false;
+            }
         },
 
         async setTags(id, tags) {
@@ -212,6 +218,22 @@ export default function () {
                     } else {
                         notyf.error(`[${email}] ${message}`);
                     }
+                }
+
+                await this.fetch();
+            } catch (err) { handleServerError(err); }
+        },
+
+        async changeSettings(id, user_id, note_color, font_size) {
+            try {
+                const { data } = await axiosInstance.patch(
+                    "/note_settings.php", { id, user_id, note_color, font_size }
+                );
+
+                if (data.message.includes("đã")) {
+                    notyf.success(data.message);
+                } else {
+                    notyf.error(data.message);
                 }
 
                 await this.fetch();

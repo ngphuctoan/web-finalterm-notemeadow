@@ -36,6 +36,22 @@
     .ql-align-right {
         text-align: right;
     }
+
+    ol {
+        @apply list-inside;
+
+        & li[data-list=bullet] {
+            @apply list-disc;
+        }
+
+        & li[data-list=ordered] {
+            @apply list-decimal;
+        }
+    }
+
+    a[href] {
+        @apply underline text-primary brightness-75 dark:brightness-125;
+    }
 }
 
 .ql-active {

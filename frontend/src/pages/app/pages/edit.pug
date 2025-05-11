@@ -11,7 +11,7 @@ block script
 
         Quill.register("modules/cursors", QuillCursors);
 
-        function createQuill({ id, toolbarId, placeholder, note, onUpdate, onImageUpload }) {
+        function createQuill({ id, toolbarId, placeholder, note, name, color, onUpdate, onImageUpload }) {
             const quill = new Quill(`#${id}`, {
                 modules: {
                     cursors: true,
@@ -47,6 +47,7 @@ block script
                 const provider = new WebsocketProvider(
                     "ws://localhost:4321", `sn_${note.id}`, ydoc
                 );
+                const awareness = provider.awareness;
                 const ytext = ydoc.getText("quill");
 
                 ytext.observe(() => {
@@ -65,7 +66,9 @@ block script
                     quill.enable(false);
                 }
 
-                new QuillBinding(ytext, quill);
+                new QuillBinding(ytext, quill, awareness);
+
+                awareness.setLocalStateField("user", { name, color });
             } else {
                 quill.on("text-change", (delta, oldDelta, source) => {
                     if (source === "user") {
@@ -84,6 +87,10 @@ block script
                 unlocked: false,
 
                 async init() {
+                    if (!this.profile.email) {
+                        await this.fetchProfile();
+                    }
+
                     if (this.$store.notes.list.length === 0) {
                         await this.$store.notes.fetch();
                     }
@@ -116,7 +123,12 @@ block script
                         toolbarId: "editor-toolbar",
                         placeholder: "Write something legendary! Or just your grocery list...",
                         note: this.note,
-                        onUpdate: (content) => this.$dispatch("update-note", content),
+                        name: this.profile.display_name,
+                        color: `hsl(${emailToHue(this.profile.email)}, 70%, 50%)`,
+                        onUpdate: (content) => {
+                            this.setSyncStatus("pending");
+                            this.$dispatch("update-note", content);
+                        },
                         onImageUpload: async (file) => {
                             const path = await uploadImage(file);
                             return path ? `${API_URL}/api/${path}` : null;
@@ -141,13 +153,35 @@ block header-left
     a.btn-icon(type="button", x-ref="closeEditor", href="/")
         i.fa.fa-arrow-left
 
+block header-right
+    div(x-data=`{
+        "ok": { label: "Synced", icon: "fa-circle-check", color: "text-green-600" },
+        "pending": { label: "Unsynced", icon: "fa-triangle-exclamation", color: "text-amber-600" },
+        "wait": { label: "Waiting...", icon: "fa-arrows-rotate fa-spin", color: "text-gray-500" },
+        "error": { label: "Error", icon: "fa-circle-xmark", color: "text-rose-600" }
+    }`)
+        button.btn.hint--bottom.hint--no-arrow.hint--no-shadow.hint--rounded(
+            type="button",
+            id="sync-status-btn",
+            @click="$dispatch('update-note')",
+            :class="$data[syncStatus].color",
+            :aria-label="`Last synced: ${lastSyncedTime}\nClick to sync manually`"
+        )
+            i.fa.fa-lg(:class="$data[syncStatus].icon")
+            span.ms-2(x-text="$data[syncStatus].label")
+
 block content
     #editor-container.flex-1.flex(
         x-data="editor",
-        @update-note.debounce.2s=`
-            $store.notes.update($params.id, {
+        @refresh-editor.window="note = $store.notes.get(note.id); createEditor()",
+        @update-note.window.debounce.2s=`
+            setSyncStatus("wait");
+
+            const success = await $store.notes.update($params.id, {
                 content: JSON.stringify($event.detail)
-            })
+            });
+
+            setSyncStatus(success ? "ok" : "error");
         `
     )
         .flex.flex-col.gap-4.w-full.max-w-4xl.p-4.mx-auto(x-show="unlocked")
@@ -171,6 +205,14 @@ block content
 
                 .px-2
 
+                button.ql-list.btn-icon(type="button", value="bullet")
+                    i.fa.fa-list-ul
+
+                button.ql-list.btn-icon(type="button", value="ordered")
+                    i.fa.fa-list-ol
+
+                .px-2
+
                 -
                     const aligns = {
                         "": { icon: "left" },
@@ -183,11 +225,17 @@ block content
 
                 .px-2
 
+                button.ql-link.btn-icon(type="button")
+                    i.fa.fa-link
+
                 button.ql-image.btn-icon(type="button")
                     i.fa.fa-image
 
                 template(x-if="noteExists && !note.shared_id")
-                    .px-2
+                    .flex.ps-4
+                        button.btn-icon(type="button", @click="$dispatch('customize-note', note)")
+                            i.fa.fa-gear
+
                         +note-more-options
 
             #note-title
@@ -208,3 +256,75 @@ block content
 
         .flex-1.flex.justify-center.items-center(x-show="!unlocked")
             .spinner.scale-200
+
+    +modal("note-theme", "Customize note")
+        div(
+            x-data="{ loading: false, id: -1, note_color: '', font_size: '' }",
+            @customize-note.window=`
+                id = $event.detail.id;
+                note_color = $event.detail.note_color;
+                font_size = $event.detail.font_size;
+
+                $refs.fontSizeSlider.value = parseInt(font_size);
+
+                $dispatch("show");
+            `
+        )
+            form.flex.flex-col.gap-4(@submit.prevent=`
+                await withLoading((v) => loading = v, () =>
+                    $store.notes.changeSettings(
+                        id, profile.id, note_color, font_size
+                    )
+                );
+
+                if ($router.context.path.startsWith("/edit/")) {
+                    $dispatch("refresh-editor");
+                }
+
+                $dispatch("close");
+            `)
+                p.opacity-70 Note color
+
+                .flex.gap-2
+                    template(x-for="color in ['gray', 'red', 'yellow', 'green', 'blue', 'purple']")
+                        div    
+                            input.hidden(type="radio", x-model="note_color", :id="`nc_${color}`", :value="color")
+
+                            label.block.cursor-pointer.size-6.border-3.rounded-full(
+                                :for="`nc_${color}`",
+                                :class=`$store.notes.colors[color] + (
+                                    note_color === color ? "" :
+                                    " border-black/25 dark:border-white/25"
+                                )`
+                            )
+
+                p.opacity-70 Font size
+
+                p.flex.justify-center.items-center.h-20.p-4.bg-gray-200.rounded(
+                    x-text="`New font size: ${font_size}`",
+                    class="dark:bg-gray-800",
+                    :style="`font-size: ${font_size}`"
+                )
+
+                .flex.items-center.gap-4
+                    p.text-center.font-bold.w-8(class="text-[12px]") A
+
+                    range-slider(
+                        x-ref="fontSizeSlider",
+                        min="12", max="24", step="2",
+                        @input="font_size = `${$el.value}px`",
+                        style="inline-size: 100%"
+                    )
+
+                    p.text-center.font-bold.w-8(class="text-[24px]") A
+
+                .grid.gap-2.mt-2(class="sm:grid-cols-2")
+                    button.btn.text-white.bg-primary(type="submit", :disabled="loading")
+                        .spinner.me-2(:class="{ 'hidden': !loading }")
+                        | Save changes
+
+                    button.btn.text-primary.border(
+                        type="button",
+                        aria-label="Close modal",
+                        data-micromodal-close
+                    ) Close
