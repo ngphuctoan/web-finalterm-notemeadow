@@ -4,7 +4,7 @@ ADD . /frontend
 
 WORKDIR /frontend
 
-RUN npm i && npm run build || true
+RUN npm i && npm run build
 
 FROM nginx:alpine
 
