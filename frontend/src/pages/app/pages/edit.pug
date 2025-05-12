@@ -45,7 +45,7 @@ block script
             if (note.shared_id || note.shared) {
                 const ydoc = new Y.Doc();
                 const provider = new WebsocketProvider(
-                    import.meta.env.WS_URL || "ws://localhost:4321", `sn_${note.id}`, ydoc
+                    process.env.WS_URL || "ws://localhost:4321", `sn_${note.id}`, ydoc
                 );
                 const awareness = provider.awareness;
                 const ytext = ydoc.getText("quill");
