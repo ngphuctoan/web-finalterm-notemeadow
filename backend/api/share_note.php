@@ -101,18 +101,41 @@ if ($_SERVER["REQUEST_METHOD"] === "PUT") {
                 $subject = "A note has been shared with you - $email_send";
                 $body = <<<EOD
                 <!DOCTYPE html>
-                <html>
+                <html lang="en">
                 <head>
-                    <title>Email Share Note</title>
+                <meta charset="UTF-8" />
+                <title>Email Share Note</title>
+                <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet" />
                 </head>
-                <body>
-                    <h2>Hello, $recipient_email!</h2>
-                    <p>You have been invited to view a note with $permission permissions.</p>
-                    <p>Click the link below or scan the QR code to access the note:</p>
-                    <img src="$url" alt="QR Code" />
-                    <p><a href="$note_link">$note_link</a></p>
-                    <p>Password: <strong>$access_password</strong></p>
-                    <p>Best regards, the Note Website team.</p>
+                <body style="font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f9fafb; padding: 20px; color: #111827; line-height: 1.6;">
+                <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; padding: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                    <h2 style="color: #d89614; margin-bottom: 16px;">Hello, <span style="color: #111827;">$recipient_email!</span></h2>
+
+                    <p style="margin-bottom: 12px;">
+                    You have been invited to view a note with <strong>$permission</strong> permissions.
+                    </p>
+
+                    <p style="margin-bottom: 12px;">
+                    Click the button below or scan the QR code to access the note:
+                    </p>
+
+                    <div style="text-align: center; margin: 24px 0;">
+                    <img src="$url" alt="QR Code" style="max-width: 200px; border: 1px solid #e5e7eb; padding: 8px; border-radius: 8px;" />
+                    <br />
+                    <a href="$note_link" style="display: inline-block; margin-top: 16px; background-color: #d89614; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                        Open Note
+                    </a>
+                    </div>
+
+                    <p style="margin-bottom: 8px;">
+                    <strong>Password:</strong> <span style="background: #f3f4f6; padding: 4px 8px; border-radius: 6px;">$access_password</span>
+                    </p>
+
+                    <p style="margin-top: 32px; color: #6b7280;">
+                    Best regards,<br />
+                    <strong>NoteMeadow Team</strong>
+                    </p>
+                </div>
                 </body>
                 </html>
                 EOD;

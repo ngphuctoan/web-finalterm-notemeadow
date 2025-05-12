@@ -51,61 +51,65 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $subject = "Reset your Note password - $email";
             $message = <<<EOD
                 <!DOCTYPE html>
-                <html>
+                <html lang="en">
                 <head>
-                    <title>Reset your Note password</title>
+                <meta charset="UTF-8" />
+                <title>Reset your Note password</title>
+                <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet" />
                 </head>
-                <body style="margin-top:20px;">
-                    <table class="body-wrap" style="font-family: "Helvetica Neue",Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 14px; width: 100%; background-color: #f6f6f6; margin: 0;" bgcolor="#f6f6f6">
-                        <tbody>
-                            <tr>
-                                <td valign="top"></td>
-                                <td class="container" width="600" valign="top">
-                                    <div class="content" style="padding: 20px;">
-                                        <table class="main" width="100%" cellpadding="0" cellspacing="0" style="border-radius: 3px; background-color: #fff; margin: 0; border: 1px solid #e9e9e9;" bgcolor="#fff">
-                                            <tbody>
-                                                <tr>
-                                                    <td class="" style="font-size: 16px; vertical-align: top; color: #fff; font-weight: 500; text-align: center; background-color: #38414a; padding: 20px;" align="center" bgcolor="#71b6f9" valign="top">
-                                                        <a href="#" style="font-size:32px;color:#fff;text-decoration: none;">Hi there!</a> <br>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="content-wrap" style="padding: 20px;" valign="top">
-                                                        <table width="100%" cellpadding="0" cellspacing="0">
-                                                            <tbody>
-                                                                <tr>
-                                                                    <td class="content-block" style="padding: 0 0 20px;" valign="top">
-                                                                        Someone (hopefully you) has requested a password reset for your Note account. Follow the link below to set a new password:
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td class="content-block" style="padding: 0 0 20px;" valign="top">
-                                                                        <a href=" $resetLink"> $resetLink </a> 
-                                                                    </td>
-                                                                </tr>
+                <body style="margin: 0; padding: 0; background-color: #f9fafb; font-family: 'Plus Jakarta Sans', sans-serif; color: #111827;">
+                <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; padding: 40px 0;">
+                    <tr>
+                    <td align="center">
+                        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden;">
+                        <!-- Header -->
+                        <tr>
+                            <td align="center" style="background-color: #d89614; padding: 24px;">
+                            <h1 style="color: white; font-size: 28px; margin: 0;">Reset Your Password</h1>
+                            </td>
+                        </tr>
 
-                                                                <tr>
-                                                                    <td class="content-block" style="padding: 0 0 20px;" valign="top">
-                                                                       If you don"t wish to reset your password, disregard this email and no action will be taken.
-                                                                    </td>
-                                                                </tr>
-                                                                <tr>
-                                                                    <td class="content-block" style="padding: 0 0 20px;" valign="top">
-                                                                        Best regards, the Note Website team.
-                                                                    </td>
-                                                                </tr>
-                                                            </tbody>
-                                                        </table>
-                                                    </td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                </td>
-                                <td valign="top"></td>
-                            </tr>
-                        </tbody>
-                    </table>
+                        <!-- Body -->
+                        <tr>
+                            <td style="padding: 30px;">
+                            <p style="font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
+                                Hi there,<br><br>
+                                We received a request to reset your password for your Note account. If this was you, click the button below to set a new password.
+                            </p>
+
+                            <div style="text-align: center; margin: 32px 0;">
+                                <a href="$resetLink" style="background-color: #d89614; color: #ffffff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                                Reset Password
+                                </a>
+                            </div>
+
+                            <p style="font-size: 14px; color: #6b7280; line-height: 1.6; margin-bottom: 20px;">
+                                Or copy and paste this link into your browser:
+                                <br>
+                                <a href="$resetLink" style="color: #d89614; word-break: break-all;">$resetLink</a>
+                            </p>
+
+                            <p style="font-size: 14px; color: #6b7280;">
+                                If you didn’t request a password reset, you can safely ignore this email — no changes will be made.
+                            </p>
+
+                            <p style="margin-top: 32px; font-size: 14px; color: #6b7280;">
+                                Best regards,<br>
+                                <strong>NoteMeadow Team</strong>
+                            </p>
+                            </td>
+                        </tr>
+
+                        <!-- Footer -->
+                        <tr>
+                            <td align="center" style="padding: 20px; font-size: 12px; color: #9ca3af;">
+                            &copy; 2025 NoteMeadow. All rights reserved.
+                            </td>
+                        </tr>
+                        </table>
+                    </td>
+                    </tr>
+                </table>
                 </body>
                 </html>
                 EOD;
