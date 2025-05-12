@@ -21,7 +21,7 @@ import "hint.css";
 import "range-slider-element";
 import "range-slider-element/dist/range-slider-element.css";
 
-window.API_URL = "http://localhost:8080";
+window.API_URL = import.meta.env.API_URL || "http://localhost:8080";
 
 window._ = _;
 
