@@ -1,21 +1,10 @@
 <?php
 
-require "config.php"; // Kết nối cơ sở dữ liệu
+require_once "config.php"; // Kết nối cơ sở dữ liệu
 session_start();
 
-// Định dạng phản hồi là JSON
-header("Content-Type: application/json");
-// Thêm CORS Headers
-header("Access-Control-Allow-Origin: http://localhost:1234");
-header("Access-Control-Allow-Credentials: true"); // Cho phép tất cả nguồn (có thể thay * bằng localhost:3000)
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
-
-// Kiểm tra xem người dùng đã đăng nhập hay chưa
-if (!isset($_SESSION["user_id"])) {
-    echo json_encode(["message" => "Chưa đăng nhập."]);
-    exit;
-}
+set_cors_header();
+check_login();
 
 $user_id = $_SESSION["user_id"];
 
@@ -25,7 +14,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
 
     // Kiểm tra nếu không có từ khóa
     if (empty($keyword)) {
-        echo json_encode(["message" => "Vui lòng cung cấp từ khóa tìm kiếm."]);
+        echo json_encode(["message" => "Please provide a search keyword."]);
         exit;
     }
 
@@ -42,5 +31,5 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
 
     echo json_encode($notes);
 } else {
-    echo json_encode(["message" => "Phương thức không hợp lệ."]);
+    echo json_encode(["message" => "Invalid method."]);
 }

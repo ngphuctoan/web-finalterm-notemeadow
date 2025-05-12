@@ -2,11 +2,11 @@ services:
   mysql:
     image: mysql:lts
     volumes:
-      - mysql_data:/var/lib/mysql
-      - ./backend/db/note_management.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./data:/var/lib/mysql
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
     environment:
       - TZ=Asia/Ho_Chi_Minh
-      - MYSQL_DATABASE=note_management
+      - MYSQL_DATABASE=notemeadow
       - MYSQL_ALLOW_EMPTY_PASSWORD=yes
 
   phpmyadmin:
@@ -21,7 +21,11 @@ services:
     ports:
       - 8080:80
     volumes:
-      - ./backend:/var/www/html
+      - ./backend/uploads:/var/www/html/uploads
+    environment:
+      - CLIENT_URL=http://localhost:1234
 
-volumes:
-  mysql_data:
+  frontend:
+    build: ./frontend
+    ports:
+      - 1234:80

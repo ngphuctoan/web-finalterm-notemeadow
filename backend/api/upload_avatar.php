@@ -1,20 +1,9 @@
 <?php
-require 'config.php'; // Database connection
+require_once 'config.php'; // Database connection
 session_start();
 
-// 🔥 CORS headers
-header("Access-Control-Allow-Origin: http://localhost:1234");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-
-header('Content-Type: application/json');
-
-// Check if the user is logged in
-if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['message' => 'Not logged in']);
-    exit;
-}
+set_cors_header();
+check_login();
 
 $user_id = $_SESSION['user_id'];
 
@@ -22,8 +11,11 @@ $user_id = $_SESSION['user_id'];
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['image_path'])) {
     $image_path = $_POST['image_path'];
 
-    // Ensure the image path is valid
-    if (empty($image_path) || !file_exists($image_path)) {
+    // Ensure the image path is valid and it is within the /uploads/images directory
+    $full_path = __DIR__ . "/../" . $image_path;
+
+    // Check if the file exists and the path is within the allowed directory
+    if (empty($image_path) || !file_exists($full_path) || !strpos($full_path, __DIR__ . "/../uploads/images/") === 0) {
         echo json_encode(['message' => 'Invalid image path.']);
         exit;
     }

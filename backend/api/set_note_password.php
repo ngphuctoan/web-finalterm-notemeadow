@@ -1,23 +1,10 @@
 <?php
 
-require "config.php";
+require_once "config.php";
 session_start();
 
-
-// 🔥 Thêm header để bật CORS
-header("Access-Control-Allow-Origin: http://localhost:1234");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-
-// Trả về JSON
-header("Content-Type: application/json");
-
-
-if (!isset($_SESSION["user_id"])) {
-    echo json_encode(["message" => "Chưa đăng nhập."]);
-    exit;
-}
+set_cors_header();
+check_login();
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $data = json_decode(file_get_contents("php://input"), true);
@@ -28,11 +15,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $stmt = $pdo->prepare("UPDATE notes SET password = ? WHERE id = ? AND user_id = ?");
         if ($stmt->execute([$password, $note_id, $_SESSION["user_id"]])) {
-            echo json_encode(["message" => "Mật khẩu ghi chú đã được thiết lập."]);
+            echo json_encode(["message" => "Note password has been set."]);
         } else {
-            echo json_encode(["message" => "Thiết lập mật khẩu không thành công."]);
+            echo json_encode(["message" => "Failed to set note password."]);
         }
     } else {
-        echo json_encode(["message" => "Vui lòng cung cấp note_id và password."]);
+        echo json_encode(["message" => "Please provide note_id and password."]);
     }
 }

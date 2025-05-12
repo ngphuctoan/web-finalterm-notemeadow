@@ -1,24 +1,17 @@
 <?php
 
-require "config.php"; // Kết nối tới cơ sở dữ liệu
+require_once "config.php"; // Kết nối tới cơ sở dữ liệu
 
 session_start(); // Khởi tạo session ở đầu tệp
 
-// 🔥 Thêm header để bật CORS
-header("Access-Control-Allow-Origin: http://localhost:1234");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-
-// Trả về JSON
-header("Content-Type: application/json");
+set_cors_header();
 
 $data = json_decode(file_get_contents("php://input"), true); // Nhận dữ liệu JSON
 
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     // Kiểm tra xem email và password có được cung cấp không
     if (empty($data["email"]) || empty($data["password"])) {
-        echo json_encode(["message" => "Vui lòng cung cấp email và mật khẩu."]);
+        echo json_encode(["message" => "Please provide email and password."]);
         exit;
     }
 
@@ -27,13 +20,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     // Kiểm tra xem email có hợp lệ không
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        echo json_encode(["logged_in" => false, "message" => "Email không hợp lệ."]);
+        echo json_encode(["logged_in" => false, "message" => "Invalid email format."]);
         exit;
     }
 
     // Kiểm tra độ dài của mật khẩu (tối thiểu 6 ký tự)
     if (strlen($password) < 6) {
-        echo json_encode(["logged_in" => false, "message" => "Mật khẩu phải có ít nhất 6 ký tự."]);
+        echo json_encode(["logged_in" => false, "message" => "Password must be at least 6 characters long."]);
         exit;
     }
 
@@ -52,17 +45,17 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
             // Kiểm tra trạng thái kích hoạt
             if ($user["is_active"] == 0) {
-                echo json_encode(["logged_in" => true, "message" => "Tài khoản chưa được kích hoạt. Vui lòng kiểm tra email để kích hoạt."]);
+                echo json_encode(["logged_in" => true, "message" => "Account is not activated. Please check your email to activate."]);
                 exit;
             }
 
-            echo json_encode(["logged_in" => true, "message" => "Đăng nhập thành công."]);
+            echo json_encode(["logged_in" => true, "message" => "Login successful."]);
         } else {
-            echo json_encode(["logged_in" => false, "message" => "Tên đăng nhập hoặc mật khẩu không đúng."]);
+            echo json_encode(["logged_in" => false, "message" => "Invalid email or password."]);
         }
     } catch (PDOException $e) {
-        echo json_encode(["logged_in" => false, "message" => "Lỗi cơ sở dữ liệu: " . $e->getMessage()]);
+        echo json_encode(["logged_in" => false, "message" => "Database error: " . $e->getMessage()]);
     }
 } else {
-    echo json_encode(["logged_in" => false, "message" => "Yêu cầu không hợp lệ."]);
+    echo json_encode(["logged_in" => false, "message" => "Invalid request."]);
 }
