@@ -7,7 +7,7 @@ block script
                 "/user_password_reset.php", { email }
             );
 
-            if (data.message.includes("đã được gửi")) {
+            if (data.message === "A password reset link has been sent to your email.") {
                 notyf.success(data.message);
             } else {
                 notyf.error(data.message);

@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 // Kiểm tra đăng nhập
 if (!isset($_SESSION["user_id"])) {
     http_response_code(401);
-    echo json_encode(["message" => "Chưa đăng nhập."]);
+    echo json_encode(["message" => "Not logged in."]);
     exit;
 }
 
@@ -47,9 +47,9 @@ try {
         if (!empty($tag_name)) {
             $stmt = $pdo->prepare("INSERT INTO tags (name, user_id) VALUES (?, ?)");
             $stmt->execute([$tag_name, $_SESSION["user_id"]]);
-            echo json_encode(["message" => "Nhãn đã được thêm."]);
+            echo json_encode(["message" => "Tag has been added."]);
         } else {
-            echo json_encode(["message" => "Tên nhãn không hợp lệ."]);
+            echo json_encode(["message" => "Invalid tag name."]);
         }
         exit;
     }
@@ -64,13 +64,13 @@ try {
         if (!empty($tag_id) && !empty($old_name) && !empty($new_name)) {
             // Kiểm tra xem tên nhãn mới có chứa dấu phẩy hay không
             if (strpos($new_name, ",") !== false) {
-                echo json_encode(["message" => "Tên nhãn mới không được chứa dấu phẩy."]);
+                echo json_encode(["message" => "New tag name cannot contain commas."]);
                 exit;
             }
 
             // Kiểm tra xem tên nhãn mới có ký tự gạch dưới hay không
             if (preg_match("/[^a-zA-Z0-9_]/", $new_name)) {
-                echo json_encode(["message" => "Tên nhãn chỉ được chứa các ký tự chữ cái, số và dấu gạch dưới (_)."]);
+                echo json_encode(["message" => "Tag name can only contain letters, numbers, and underscores (_)."]);
                 exit;
             }
 
@@ -84,12 +84,12 @@ try {
                 $current_name = $stmt->fetchColumn();
 
                 if (!$current_name) {
-                    throw new Exception("Không tìm thấy nhãn với ID đã cung cấp.");
+                    throw new Exception("Tag with provided ID not found.");
                 }
 
                 // Kiểm tra nếu nhãn cũ là đúng với nhãn cần thay đổi
                 if ($current_name !== $old_name) {
-                    throw new Exception("Tên nhãn cũ không khớp với nhãn trong bảng tags.");
+                    throw new Exception("Old tag name does not match the tag in the database.");
                 }
 
                 // 2. Cập nhật tên nhãn trong bảng tags
@@ -108,14 +108,14 @@ try {
 
                 // Commit transaction nếu không có lỗi
                 $pdo->commit();
-                echo json_encode(["message" => "Nhãn đã được đổi tên thành công trong cả hai bảng."]);
+                echo json_encode(["message" => "Tag has been successfully renamed in both tables."]);
             } catch (Exception $e) {
                 // Rollback nếu có lỗi
                 $pdo->rollBack();
-                echo json_encode(["message" => "Lỗi khi cập nhật nhãn.", "error" => $e->getMessage()]);
+                echo json_encode(["message" => "Error updating tag.", "error" => $e->getMessage()]);
             }
         } else {
-            echo json_encode(["message" => "Thông tin không đầy đủ."]);
+            echo json_encode(["message" => "Incomplete information."]);
         }
         exit;
     }
@@ -128,9 +128,9 @@ try {
         if (!empty($tag_id)) {
             $stmt = $pdo->prepare("DELETE FROM tags WHERE id = ? AND user_id = ?");
             $stmt->execute([$tag_id, $_SESSION["user_id"]]);
-            echo json_encode(["message" => "Nhãn đã được xóa."]);
+            echo json_encode(["message" => "Tag has been deleted."]);
         } else {
-            echo json_encode(["message" => "Thông tin không đầy đủ."]);
+            echo json_encode(["message" => "Incomplete information."]);
         }
         exit;
     }
@@ -152,10 +152,10 @@ try {
             if ($notes) {
                 echo json_encode($notes);
             } else {
-                echo json_encode(["message" => "Không tìm thấy ghi chú nào liên quan đến nhãn này."]);
+                echo json_encode(["message" => "No notes found related to this tag."]);
             }
         } else {
-            echo json_encode(["message" => "Thông tin không đầy đủ."]);
+            echo json_encode(["message" => "Incomplete information."]);
         }
         exit;
     }
@@ -177,14 +177,14 @@ try {
             if ($notes) {
                 echo json_encode($notes);
             } else {
-                echo json_encode(["message" => "Không tìm thấy ghi chú nào liên quan đến nhãn này."]);
+                echo json_encode(["message" => "No notes found related to this tag."]);
             }
         } else {
-            echo json_encode(["message" => "Thông tin không đầy đủ."]);
+            echo json_encode(["message" => "Incomplete information."]);
         }
         exit;
     }
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(["message" => "Lỗi khi lưu dữ liệu: " . htmlspecialchars($e->getMessage())]);
+    echo json_encode(["message" => "Error saving data: " . htmlspecialchars($e->getMessage())]);
 }

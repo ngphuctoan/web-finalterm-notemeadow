@@ -54,7 +54,7 @@ function sendActivationEmail($to, $user_name, $activation_token)
                                                 </tr>
                                                 <tr>
                                                     <td class="content-block" style="padding: 0 0 20px;" valign="top">
-                                                        This link will verify your email address, and then you’ll officially be a part of the Note Website community.
+                                                        This link will verify your email address, and then you'll officially be a part of the Note Website community.
                                                     </td>
                                                 </tr>
                                                 <tr>
@@ -94,75 +94,75 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     $password = $data["password"] ?? "";
     $password_confirmation = $data["password_confirmation"] ?? "";
 
-    // Kiểm tra xem email có trống không
+    // Check if email is empty
     if (empty($email)) {
-        echo json_encode(["message" => "Email không được phép để trống."]);
+        echo json_encode(["message" => "Email cannot be empty."]);
         exit;
     } elseif (empty($display_name)) {
-        echo json_encode(["message" => "Tên hiển thị không được phép để trống."]);
+        echo json_encode(["message" => "Display name cannot be empty."]);
         exit;
     }
 
-    // Kiểm tra email có hợp lệ không (có thể sử dụng filter_var để kiểm tra email)
+    // Check if email is valid
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        echo json_encode(["message" => "Email không hợp lệ."]);
+        echo json_encode(["message" => "Invalid email format."]);
         exit;
     }
 
-    // Kiểm tra mật khẩu có trống không
+    // Check if password is empty
     if (empty($password)) {
-        echo json_encode(["message" => "Mật khẩu không được để trống."]);
+        echo json_encode(["message" => "Password cannot be empty."]);
         exit;
     }
 
-    // Kiểm tra mật khẩu có ít nhất 8 ký tự không
+    // Check if password is at least 8 characters
     if (strlen($password) < 8) {
-        echo json_encode(["message" => "Mật khẩu phải có ít nhất 8 ký tự."]);
+        echo json_encode(["message" => "Password must be at least 8 characters long."]);
         exit;
     }
 
-    // Kiểm tra mật khẩu và mật khẩu xác nhận có khớp không
+    // Check if password and confirmation match
     if ($password !== $password_confirmation) {
-        echo json_encode(["message" => "Mật khẩu và xác nhận mật khẩu không khớp."]);
+        echo json_encode(["message" => "Password and confirmation do not match."]);
         exit;
     }
 
     try {
-        // Kiểm tra xem email đã tồn tại chưa
+        // Check if email already exists
         $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
         $stmt->execute([$email]);
         if ($stmt->rowCount() > 0) {
-            echo json_encode(["message" => "Email đã được sử dụng."]);
+            echo json_encode(["message" => "Email is already in use."]);
             exit;
         }
 
-        // Mã hóa mật khẩu
+        // Hash password
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
         $activation_token = bin2hex(random_bytes(16));
 
-        // Chèn thông tin người dùng vào cơ sở dữ liệu
+        // Insert user data into database
         $stmt = $pdo->prepare("INSERT INTO users (email, display_name, password, activation_token) VALUES (?, ?, ?, ?)");
         if ($stmt->execute([$email, $display_name, $hashed_password, $activation_token])) {
-            // Gửi email kích hoạt
+            // Send activation email
             if (!sendActivationEmail($email, $display_name, $activation_token)) {
-                echo json_encode(["message" => "Không thể gửi email kích hoạt."]);
+                echo json_encode(["message" => "Could not send activation email."]);
                 exit;
             }
 
-            // Tự động đăng nhập
+            // Auto login
             session_start();
             $_SESSION["user_id"] = $pdo->lastInsertId();
-            $_SESSION["user_email"] = $email; // Lưu email vào session
+            $_SESSION["user_email"] = $email; // Save email in session
 
-            echo json_encode(["message" => "Đăng ký thành công, vui lòng kiểm tra email để kích hoạt."]);
+            echo json_encode(["message" => "Registration successful, please check your email to activate your account."]);
         } else {
-            echo json_encode(["message" => "Có lỗi khi đăng ký tài khoản."]);
+            echo json_encode(["message" => "Error creating account."]);
         }
     } catch (PDOException $e) {
-        echo json_encode(["message" => "Lỗi cơ sở dữ liệu: " . $e->getMessage()]);
+        echo json_encode(["message" => "Database error: " . $e->getMessage()]);
     } catch (Exception $e) {
-        echo json_encode(["message" => "Lỗi hệ thống: " . $e->getMessage()]);
+        echo json_encode(["message" => "System error: " . $e->getMessage()]);
     }
 } else {
-    echo json_encode(["message" => "Yêu cầu không hợp lệ."]);
+    echo json_encode(["message" => "Invalid request."]);
 }

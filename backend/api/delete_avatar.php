@@ -14,7 +14,7 @@ header("Content-Type: application/json");
 
 // Kiểm tra phiên đăng nhập
 if (!isset($_SESSION["user_id"])) {
-    echo json_encode(["message" => "Chưa đăng nhập."]);
+    echo json_encode(["message" => "Not logged in."]);
     exit;
 }
 
@@ -28,10 +28,10 @@ if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
     $stmt = $pdo->prepare("UPDATE users SET image = ? WHERE id = ?");
 
     if ($stmt->execute([$defaultImage, $user_id])) {
-        echo json_encode(["message" => "Đã xóa ảnh đại diện hiện tại."]);
+        echo json_encode(["message" => "Current avatar has been removed."]);
     } else {
-        echo json_encode(["message" => "Không thể cập nhật thông tin người dùng."]);
+        echo json_encode(["message" => "Unable to update user information."]);
     }
 } else {
-    echo json_encode(["message" => "Phương thức không hợp lệ."]);
+    echo json_encode(["message" => "Invalid method."]);
 }

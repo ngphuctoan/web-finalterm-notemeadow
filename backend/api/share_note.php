@@ -69,12 +69,12 @@ if ($_SERVER["REQUEST_METHOD"] === "PUT") {
         $permission = trim($entry["permission"] ?? "");
 
         if (!in_array($permission, ["read", "edit"], true)) {
-            $responses[] = ["email" => $recipient_email, "message" => "Quyền không hợp lệ: $permission"];
+            $responses[] = ["email" => $recipient_email, "message" => "Invalid permission: $permission"];
             continue;
         }
 
         if (!filter_var($recipient_email, FILTER_VALIDATE_EMAIL) || !$permission) {
-            $responses[] = ["email" => $recipient_email, "message" => "Email hoặc quyền không hợp lệ."];
+            $responses[] = ["email" => $recipient_email, "message" => "Invalid email or permission."];
             continue;
         }
 
@@ -86,7 +86,7 @@ if ($_SERVER["REQUEST_METHOD"] === "PUT") {
         if ($row) {
             $updateStmt = $pdo->prepare("UPDATE shared_notes SET permission = ? WHERE id = ?");
             $updateStmt->execute([$permission, $row["id"]]);
-            $responses[] = ["email" => $recipient_email, "message" => "Đã cập nhật quyền truy cập."];
+            $responses[] = ["email" => $recipient_email, "message" => "Access permission has been updated."];
         } else {
             $access_password = generateRandomPassword();
             $insertStmt = $pdo->prepare("

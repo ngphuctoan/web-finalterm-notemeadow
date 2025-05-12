@@ -15,7 +15,7 @@ header("Content-Type: application/json");
 
 
 if (!isset($_SESSION["user_id"])) {
-    echo json_encode(["message" => "Chưa đăng nhập."]);
+    echo json_encode(["message" => "Not logged in."]);
     exit;
 }
 
@@ -29,13 +29,13 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $stmt = $pdo->prepare("UPDATE shared_notes SET permission = ? WHERE note_id = ? AND recipient_email = ?");
         if ($stmt->execute([$permission, $note_id, $recipient_email])) {
-            echo json_encode(["message" => "Quyền đã được cập nhật thành công."]);
+            echo json_encode(["message" => "Permission has been updated successfully."]);
         } else {
-            echo json_encode(["message" => "Cập nhật quyền không thành công."]);
+            echo json_encode(["message" => "Failed to update permission."]);
         }
     } else {
-        echo json_encode(["message" => "Vui lòng cung cấp note_id, recipient_email và permission."]);
+        echo json_encode(["message" => "Please provide note_id, recipient_email and permission."]);
     }
 } else {
-    echo json_encode(["message" => "Phương thức không hợp lệ."]);
+    echo json_encode(["message" => "Invalid method."]);
 }

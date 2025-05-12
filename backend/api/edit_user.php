@@ -80,7 +80,7 @@ if (isset($data["theme"])) {
 // Nếu không có trường nào được cung cấp để cập nhật
 if (empty($updateFields)) {
     http_response_code(400);
-    echo json_encode(["message" => "Vui lòng cung cấp ít nhất một trường để cập nhật."]);
+    echo json_encode(["message" => "Please provide at least one field to update."]);
     exit;
 }
 
@@ -94,12 +94,12 @@ $stmt = $pdo->prepare($sql);
 try {
     // Thực hiện câu lệnh cập nhật
     if ($stmt->execute($params)) {
-        echo json_encode(["message" => "Thông tin người dùng đã được cập nhật."]);
+        echo json_encode(["message" => "User information has been updated."]);
     } else {
         http_response_code(500);
-        echo json_encode(["message" => "Cập nhật thông tin không thành công."]);
+        echo json_encode(["message" => "Failed to update information."]);
     }
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(["message" => "Lỗi khi cập nhật dữ liệu: " . htmlspecialchars($e->getMessage())]);
+    echo json_encode(["message" => "Error updating data: " . htmlspecialchars($e->getMessage())]);
 }

@@ -13,83 +13,55 @@ header("Access-Control-Allow-Headers: Content-Type");
 // Trả về JSON
 header("Content-Type: application/json");
 
-// Kiểm tra phiên đăng nhập
+// Kiểm tra đăng nhập
 if (!isset($_SESSION["user_id"])) {
     http_response_code(401);
-    echo json_encode(["message" => "Chưa đăng nhập."]);
+    echo json_encode(["message" => "Not logged in."]);
     exit;
 }
 
-// Lấy user_id từ session
-$user_id = $_SESSION["user_id"];
-
-// Kiểm tra phương thức yêu cầu
-if ($_SERVER["REQUEST_METHOD"] !== "PUT") {
+// Kiểm tra phương thức
+if ($_SERVER["REQUEST_METHOD"] !== "POST") {
     http_response_code(405);
-    echo json_encode(["message" => "Phương thức không hợp lệ."]);
+    echo json_encode(["message" => "Method not allowed."]);
     exit;
 }
-
-// Lấy dữ liệu JSON từ yêu cầu
-$data = json_decode(file_get_contents("php://input"), true);
-
-// Khởi tạo mảng để lưu các trường cần cập nhật
-$updateFields = [];
-$params = [];
-
-// Kiểm tra và thêm các trường vào mảng cập nhật
-if (isset($data["email"])) {
-    $updateFields[] = "email = ?";
-    $params[] = $data["email"];
-}
-if (isset($data["display_name"])) {
-    $updateFields[] = "display_name = ?";
-    $params[] = $data["display_name"];
-}
-if (isset($data["is_active"])) {
-    $updateFields[] = "is_active = ?";
-    $params[] = $data["is_active"];
-}
-if (isset($data["activation_token"])) {
-    $updateFields[] = "activation_token = ?";
-    $params[] = $data["activation_token"];
-}
-if (isset($data["preferences"])) {
-    $updateFields[] = "preferences = ?";
-    $params[] = $data["preferences"]; // Chuyển đổi thành JSON nếu cần
-}
-if (isset($data["image"])) {
-    $updateFields[] = "image = ?";
-    $params[] = $data["image"]; // Lưu ảnh dưới dạng JSON
-}
-if (isset($data["theme"])) {
-    $updateFields[] = "theme = ?";
-    $params[] = $data["theme"];
-}
-
-// Nếu không có trường nào được cung cấp để cập nhật
-if (empty($updateFields)) {
-    http_response_code(400);
-    echo json_encode(["message" => "Vui lòng cung cấp ít nhất một trường để cập nhật."]);
-    exit;
-}
-
-// Thêm user_id vào cuối mảng params
-$params[] = $user_id;
-
-// Tạo câu lệnh SQL động
-$sql = "UPDATE users SET " . implode(", ", $updateFields) . " WHERE id = ?";
-$stmt = $pdo->prepare($sql);
 
 try {
-    // Thực hiện câu lệnh cập nhật
-    if ($stmt->execute($params)) {
-        echo json_encode(["message" => "Thông tin người dùng đã được cập nhật."]);
-    } else {
-        http_response_code(500);
-        echo json_encode(["message" => "Cập nhật thông tin không thành công."]);
+    $data = json_decode(file_get_contents("php://input"), true);
+    $user_id = $_SESSION["user_id"];
+    $name = $data["name"] ?? "";
+    $email = $data["email"] ?? "";
+
+    // Kiểm tra dữ liệu
+    if (empty($name) || empty($email)) {
+        http_response_code(400);
+        echo json_encode(["message" => "Name and email are required."]);
+        exit;
     }
+
+    // Kiểm tra email hợp lệ
+    if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        http_response_code(400);
+        echo json_encode(["message" => "Invalid email format."]);
+        exit;
+    }
+
+    // Kiểm tra email đã tồn tại chưa (trừ email hiện tại của user)
+    $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ? AND id != ?");
+    $stmt->execute([$email, $user_id]);
+    if ($stmt->rowCount() > 0) {
+        http_response_code(400);
+        echo json_encode(["message" => "Email already exists."]);
+        exit;
+    }
+
+    // Cập nhật thông tin
+    $stmt = $pdo->prepare("UPDATE users SET name = ?, email = ? WHERE id = ?");
+    $stmt->execute([$name, $email, $user_id]);
+
+    echo json_encode(["message" => "User information has been updated."]);
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(["message" => "Lỗi khi cập nhật dữ liệu: " . htmlspecialchars($e->getMessage())]);
+    echo json_encode(["message" => "Error updating profile: " . $e->getMessage()]);
 }

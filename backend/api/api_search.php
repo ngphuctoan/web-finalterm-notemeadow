@@ -13,7 +13,7 @@ header("Access-Control-Allow-Headers: Content-Type, Authorization");
 
 // Kiểm tra xem người dùng đã đăng nhập hay chưa
 if (!isset($_SESSION["user_id"])) {
-    echo json_encode(["message" => "Chưa đăng nhập."]);
+    echo json_encode(["message" => "Not logged in."]);
     exit;
 }
 
@@ -25,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
 
     // Kiểm tra nếu không có từ khóa
     if (empty($keyword)) {
-        echo json_encode(["message" => "Vui lòng cung cấp từ khóa tìm kiếm."]);
+        echo json_encode(["message" => "Please provide a search keyword."]);
         exit;
     }
 
@@ -42,5 +42,5 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
 
     echo json_encode($notes);
 } else {
-    echo json_encode(["message" => "Phương thức không hợp lệ."]);
+    echo json_encode(["message" => "Invalid method."]);
 }

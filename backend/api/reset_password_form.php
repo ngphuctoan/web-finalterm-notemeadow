@@ -33,12 +33,12 @@ if ($token) {
 
         if ($current_time > $expires) {
             http_response_code(400);
-            echo json_encode(["message" => "Liên kết đã hết hạn. Vui lòng yêu cầu một liên kết mới."]);
+            echo json_encode(["message" => "Link has expired. Please request a new link."]);
             exit;
         }
     } else {
         http_response_code(400);
-        echo json_encode(["message" => "Mã xác thực không hợp lệ. Vui lòng kiểm tra lại."]);
+        echo json_encode(["message" => "Invalid verification code. Please check again."]);
         exit;
     }
 }
@@ -47,7 +47,7 @@ if ($token) {
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
     if (!$reset) {
         http_response_code(400);
-        echo json_encode(["message" => "Mã xác thực không hợp lệ hoặc đã hết hạn."]);
+        echo json_encode(["message" => "Invalid verification code or link has expired."]);
         exit;
     }
 
@@ -55,7 +55,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
     if (empty($new_password) || strlen($new_password) < 6) {
         http_response_code(400);
-        echo json_encode(["message" => "Mật khẩu mới không hợp lệ. Vui lòng nhập mật khẩu có ít nhất 6 ký tự."]);
+        echo json_encode(["message" => "Invalid new password. Please enter a password with at least 6 characters."]);
         exit;
     }
 
@@ -66,14 +66,14 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $stmt = $pdo->prepare("DELETE FROM password_resets WHERE token = ?");
         $stmt->execute([$token]);
 
-        echo json_encode(["message" => "Mật khẩu đã được cập nhật thành công."]);
+        echo json_encode(["message" => "Password has been updated successfully."]);
         exit;
     } else {
         http_response_code(500);
-        echo json_encode(["message" => "Có lỗi xảy ra khi cập nhật mật khẩu. Vui lòng thử lại sau."]);
+        echo json_encode(["message" => "An error occurred while updating the password. Please try again later."]);
         exit;
     }
 }
 
 http_response_code(405); // Method Not Allowed
-echo json_encode(["message" => "Phương thức không hợp lệ."]);
+echo json_encode(["message" => "Invalid method."]);

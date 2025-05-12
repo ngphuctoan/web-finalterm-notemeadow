@@ -140,7 +140,7 @@ window.uploadImage = async (file) => {
             }
         );
 
-        if (data.message.includes("Image uploaded successfully")) {
+        if (data.message === "Image uploaded successfully") {
             return data.file_path;
         }
         throw new Error(data.message);

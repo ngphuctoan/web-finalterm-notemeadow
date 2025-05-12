@@ -16,7 +16,7 @@ header("Content-Type: application/json");
 
 // Kiểm tra xem người dùng đã đăng nhập chưa
 if (!isset($_SESSION["user_id"])) {
-    echo json_encode(["message" => "Người dùng chưa đăng nhập."]);
+    echo json_encode(["message" => "User not logged in."]);
     exit;
 }
 
@@ -39,7 +39,7 @@ if ($_SERVER["REQUEST_METHOD"] === "PATCH") {
     $theme = $data["theme"] ?? null;
 
     if (!$userId || !$theme) {
-        echo json_encode(["message" => "Dữ liệu không hợp lệ."]);
+        echo json_encode(["message" => "Invalid data."]);
         exit;
     }
 
@@ -52,9 +52,9 @@ if ($_SERVER["REQUEST_METHOD"] === "PATCH") {
         // Cập nhật cài đặt chủ đề
         $stmt = $pdo->prepare("UPDATE users SET theme = ? WHERE id = ?");
         $stmt->execute([$theme, $userId]);
-        echo json_encode(["message" => "Cài đặt chủ đề đã được cập nhật."]);
+        echo json_encode(["message" => "Theme settings have been updated."]);
     } else {
-        echo json_encode(["message" => "Người dùng không tồn tại."]);
+        echo json_encode(["message" => "User does not exist."]);
     }
 
     exit;

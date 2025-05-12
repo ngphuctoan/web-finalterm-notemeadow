@@ -15,7 +15,7 @@ header("Content-Type: application/json");
 
 
 if (!isset($_SESSION["user_id"])) {
-    echo json_encode(["message" => "Chưa đăng nhập."]);
+    echo json_encode(["message" => "Not logged in."]);
     exit;
 }
 

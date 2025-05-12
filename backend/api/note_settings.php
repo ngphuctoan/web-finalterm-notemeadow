@@ -15,7 +15,7 @@ header("Content-Type: application/json");
 
 // Kiểm tra xem người dùng đã đăng nhập chưa
 if (!isset($_SESSION["user_id"])) {
-    echo json_encode(["message" => "Người dùng chưa đăng nhập."]);
+    echo json_encode(["message" => "User not logged in."]);
     exit;
 }
 
@@ -26,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     $noteId = $_GET["id"] ?? null;
 
     if (!$noteId) {
-        echo json_encode(["message" => "ID ghi chú không hợp lệ."]);
+        echo json_encode(["message" => "Invalid note ID."]);
         exit;
     }
 
@@ -37,7 +37,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET") {
     if ($noteSettings) {
         echo json_encode($noteSettings);
     } else {
-        echo json_encode(["message" => "Ghi chú không tìm thấy."]);
+        echo json_encode(["message" => "Note not found."]);
     }
     exit;
 }
@@ -52,7 +52,7 @@ if ($_SERVER["REQUEST_METHOD"] === "PATCH") {
     $noteColor = $data["note_color"] ?? null;
 
     if (!$noteId || !$userId) {
-        echo json_encode(["message" => "ID ghi chú hoặc user_id không hợp lệ."]);
+        echo json_encode(["message" => "Invalid note ID or user ID."]);
         exit;
     }
 
@@ -62,7 +62,7 @@ if ($_SERVER["REQUEST_METHOD"] === "PATCH") {
     $exists = $stmt->fetchColumn();
 
     if (!$exists) {
-        echo json_encode(["message" => "Ghi chú không tìm thấy."]);
+        echo json_encode(["message" => "Note not found."]);
         exit;
     }
 
@@ -80,7 +80,7 @@ if ($_SERVER["REQUEST_METHOD"] === "PATCH") {
     }
 
     if (empty($fields)) {
-        echo json_encode(["message" => "Không có dữ liệu cần cập nhật."]);
+        echo json_encode(["message" => "No data to update."]);
         exit;
     }
 
@@ -90,8 +90,8 @@ if ($_SERVER["REQUEST_METHOD"] === "PATCH") {
 
     $stmt = $pdo->prepare($query);
     if ($stmt->execute($params)) {
-        echo json_encode(["message" => "Cài đặt ghi chú đã được cập nhật."]);
+        echo json_encode(["message" => "Note settings have been updated."]);
     } else {
-        echo json_encode(["message" => "Lỗi khi cập nhật cài đặt."]);
+        echo json_encode(["message" => "Error updating settings."]);
     }
 }

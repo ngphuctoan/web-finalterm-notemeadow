@@ -13,7 +13,7 @@ block script
                                 "/register.php", formToJSON(new FormData(this.$el))
                             );
             
-                            if (!registerData.message.includes("thành công")) {
+                            if (registerData.message !== "Registration successful, please check your email to activate your account.") {
                                 notyf.error(registerData.message);
                                 return;
                             }

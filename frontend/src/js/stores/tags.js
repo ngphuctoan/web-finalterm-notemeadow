@@ -25,7 +25,7 @@ export default function () {
                     "/tags.php?action=add_tag", { name }
                 );
 
-                if (data.message.includes("thêm")) {
+                if (data.message === "Tag has been added successfully.") {
                     notyf.success(data.message);
                 } else {
                     notyf.error(data.message);
@@ -63,7 +63,7 @@ export default function () {
                     }
                 );
 
-                if (data.message.includes("xóa")) {
+                if (data.message === "Tag has been deleted successfully.") {
                     notyf.success(data.message);
                 } else {
                     notyf.error(data.message);

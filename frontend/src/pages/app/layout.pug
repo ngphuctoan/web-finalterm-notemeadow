@@ -161,7 +161,7 @@ script.
                         "/edit_user.php", profileData
                     );
 
-                    if (data.message.includes("đã")) {
+                    if (data.message === "User information has been updated.") {
                         notyf.success(data.message);
                     } else {
                         notyf.error(data.message);
@@ -180,7 +180,7 @@ script.
                         "/upload_avatar.php", formData
                     );
 
-                    if (data.message.includes("successfully")) {
+                    if (data.message === "Avatar has been updated successfully.") {
                         notyf.success(data.message);
                     } else {
                         notyf.error(data.message);

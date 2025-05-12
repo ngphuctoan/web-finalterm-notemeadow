@@ -15,7 +15,7 @@ header("Content-Type: application/json");
 
 
 if (!isset($_SESSION["user_id"])) {
-    echo json_encode(["message" => "Chưa đăng nhập."]);
+    echo json_encode(["message" => "Not logged in."]);
     exit;
 }
 
@@ -28,11 +28,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
         $stmt = $pdo->prepare("UPDATE notes SET password = ? WHERE id = ? AND user_id = ?");
         if ($stmt->execute([$password, $note_id, $_SESSION["user_id"]])) {
-            echo json_encode(["message" => "Mật khẩu ghi chú đã được thiết lập."]);
+            echo json_encode(["message" => "Note password has been set."]);
         } else {
-            echo json_encode(["message" => "Thiết lập mật khẩu không thành công."]);
+            echo json_encode(["message" => "Failed to set note password."]);
         }
     } else {
-        echo json_encode(["message" => "Vui lòng cung cấp note_id và password."]);
+        echo json_encode(["message" => "Please provide note_id and password."]);
     }
 }

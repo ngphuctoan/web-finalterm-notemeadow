@@ -50,9 +50,9 @@ if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
             echo json_encode(["success" => false, "message" => "Xóa ghi chú không thành công."]);
         }
     } catch (PDOException $e) {
-        error_log("❌ Lỗi SQL: " . $e->getMessage());
-        echo json_encode(["success" => false, "message" => "Lỗi khi xóa dữ liệu: " . $e->getMessage()]);
+        error_log("❌ SQL Error: " . $e->getMessage());
+        echo json_encode(["success" => false, "message" => "Error deleting data: " . $e->getMessage()]);
     }
 } else {
-    echo json_encode(["success" => false, "message" => "Phương thức không hợp lệ."]);
+    echo json_encode(["success" => false, "message" => "Invalid method."]);
 }

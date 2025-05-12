@@ -1,4 +1,3 @@
-
 export default function () {
     return {
         list: [],
@@ -213,7 +212,7 @@ export default function () {
                 );
 
                 for (const { email, message } of data) {
-                    if (message.includes("Đã")) {
+                    if (message === "Access permission has been updated.") {
                         notyf.success(`[${email}] ${message}`);
                     } else {
                         notyf.error(`[${email}] ${message}`);

@@ -15,8 +15,8 @@ header("Content-Type: application/json");
 
 // Kiểm tra phiên đăng nhập
 if (!isset($_SESSION["user_id"])) {
-    http_response_code(401); // Trả về mã lỗi 401
-    echo json_encode(["message" => "Chưa đăng nhập."]);
+    http_response_code(401); // Return 401 error code
+    echo json_encode(["message" => "Not logged in."]);
     exit;
 }
 
@@ -34,6 +34,6 @@ try {
     // Trả về dữ liệu ghi chú dưới dạng JSON
     echo json_encode($profile);
 } catch (PDOException $e) {
-    http_response_code(500); // Trả về mã lỗi 500
-    echo json_encode(["message" => "Lỗi khi lấy dữ liệu: " . htmlspecialchars($e->getMessage())]);
+    http_response_code(500); // Return 500 error code
+    echo json_encode(["message" => "Error retrieving data: " . htmlspecialchars($e->getMessage())]);
 }

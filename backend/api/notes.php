@@ -72,7 +72,7 @@ try {
             // Kiểm tra xem thư mục uploads có tồn tại không, nếu không thì tạo
             if (!is_dir($target_dir)) {
                 if (!mkdir($target_dir, 0777, true)) {
-                    echo json_encode(["message" => "Không thể tạo thư mục uploads."]);
+                    echo json_encode(["message" => "Could not create uploads directory."]);
                     exit;
                 }
             }
@@ -85,13 +85,13 @@ try {
                     // Kiểm tra định dạng ảnh
                     $allowed_types = ["jpg", "png", "jpeg", "gif"];
                     if (!in_array($imageFileType, $allowed_types)) {
-                        echo json_encode(["message" => "Chỉ cho phép tải lên các định dạng JPG, JPEG, PNG, GIF."]);
+                        echo json_encode(["message" => "Only JPG, JPEG, PNG, and GIF files are allowed."]);
                         exit;
                     }
 
                     // Kiểm tra kích thước ảnh (optional)
                     if ($_FILES["images"]["size"][$key] > 5000000) { // 5MB max size
-                        echo json_encode(["message" => "Ảnh quá lớn. Kích thước tối đa là 5MB."]);
+                        echo json_encode(["message" => "Image is too large. Maximum size is 5MB."]);
                         exit;
                     }
 
@@ -99,12 +99,12 @@ try {
                     if (move_uploaded_file($_FILES["images"]["tmp_name"][$key], $target_file)) {
                         $imagePaths[] = $target_file; // Lưu đường dẫn ảnh
                     } else {
-                        echo json_encode(["message" => "Có lỗi khi tải ảnh lên."]);
+                        echo json_encode(["message" => "An error occurred while uploading the image."]);
                         exit;
                     }
                 } else {
                     // Xử lý lỗi tải lên
-                    echo json_encode(["message" => "Lỗi tải ảnh: " . $_FILES["images"]["error"][$key]]);
+                    echo json_encode(["message" => "Upload error: " . $_FILES["images"]["error"][$key]]);
                     exit;
                 }
             }

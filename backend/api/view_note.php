@@ -40,7 +40,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $note_id = $note_id_encode;
 
     } else {
-        echo json_encode(["message" => "Vui lòng cung cấp note_id và access_password."]);
+        echo json_encode(["message" => "Please provide note_id and access_password."]);
         exit;
     }
 } elseif ($_SERVER["REQUEST_METHOD"] === "GET") {
@@ -52,11 +52,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $note_id = $note_id_encode;
 
     } else {
-        echo json_encode(["message" => "Vui lòng cung cấp note_id và access_password."]);
+        echo json_encode(["message" => "Please provide note_id and access_password."]);
         exit;
     }
 } else {
-    echo json_encode(["message" => "Phương thức không hợp lệ."]);
+    echo json_encode(["message" => "Invalid method."]);
     exit;
 }
 
@@ -94,10 +94,10 @@ if ($shared_note) {
 
         // Return the note data as JSON
         header("Content-Type: application/json");
-        echo json_encode(["message" => "✅ Truy cập thành công.", "note" => $note_data]);
+        echo json_encode(["message" => "✅ Access successful.", "note" => $note_data]);
     } else {
-        echo json_encode(["message" => "❌  Ghi chú không đtồn tại hoặc không thuộc quyền truy cập."]);
+        echo json_encode(["message" => "❌ Note does not exist or you don't have access."]);
     }
 } else {
-    echo json_encode(["message" => "❌ Mật khẩu không đúng."]);
+    echo json_encode(["message" => "❌ Incorrect password."]);
 }

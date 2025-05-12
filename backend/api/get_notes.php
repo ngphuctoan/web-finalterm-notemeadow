@@ -42,5 +42,5 @@ try {
     echo json_encode($notes);
 } catch (PDOException $e) {
     http_response_code(500); // Trả về mã lỗi 500
-    echo json_encode(["message" => "Lỗi khi lấy dữ liệu: " . htmlspecialchars($e->getMessage())]);
+    echo json_encode(["message" => "Error retrieving data: " . htmlspecialchars($e->getMessage())]);
 }

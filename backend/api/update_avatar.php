@@ -1,16 +1,4 @@
 <?php
-
-require "config.php"; // Database connection
-session_start();
-
-// 🔥 CORS headers
-header("Access-Control-Allow-Origin: http://localhost:1234");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-
-header("Content-Type: application/json");
-
 // Kiểm tra đăng nhập
 if (!isset($_SESSION["user_id"])) {
     http_response_code(401);
@@ -27,13 +15,13 @@ if ($_SERVER["REQUEST_METHOD"] !== "POST") {
 
 try {
     // Kiểm tra xem có file được upload không
-    if (!isset($_FILES["image"]) || $_FILES["image"]["error"] !== UPLOAD_ERR_OK) {
+    if (!isset($_FILES["avatar"]) || $_FILES["avatar"]["error"] !== UPLOAD_ERR_OK) {
         http_response_code(400);
         echo json_encode(["message" => "No file uploaded or upload error."]);
         exit;
     }
 
-    $file = $_FILES["image"];
+    $file = $_FILES["avatar"];
     $allowed_types = ["image/jpeg", "image/png", "image/gif"];
     $max_size = 5 * 1024 * 1024; // 5MB
 
@@ -54,7 +42,7 @@ try {
     // Tạo tên file mới
     $extension = pathinfo($file["name"], PATHINFO_EXTENSION);
     $new_filename = uniqid() . "." . $extension;
-    $upload_dir = "../uploads/images/";
+    $upload_dir = "../uploads/avatars/";
 
     // Tạo thư mục nếu chưa tồn tại
     if (!file_exists($upload_dir)) {
@@ -65,9 +53,13 @@ try {
 
     // Di chuyển file
     if (move_uploaded_file($file["tmp_name"], $target_path)) {
+        // Cập nhật đường dẫn avatar trong database
+        $stmt = $pdo->prepare("UPDATE users SET avatar = ? WHERE id = ?");
+        $stmt->execute([$new_filename, $_SESSION["user_id"]]);
+
         echo json_encode([
-            "message" => "Image uploaded successfully.",
-            "image" => $new_filename
+            "message" => "Avatar has been updated successfully.",
+            "avatar" => $new_filename
         ]);
     } else {
         http_response_code(500);
@@ -75,5 +67,5 @@ try {
     }
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(["message" => "Error uploading image: " . $e->getMessage()]);
-}
+    echo json_encode(["message" => "Error updating avatar: " . $e->getMessage()]);
+} 
