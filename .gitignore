@@ -1,9 +1,9 @@
 .env
-!data
 data/*
+!data/.gitkeep
 backend/vendor
-!backend/uploads/images
 backend/uploads/images/*
+!backend/uploads/images/.gitkeep
 frontend/.parcel-cache
 frontend/dist
 frontend/node_modules
