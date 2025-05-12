@@ -196,7 +196,7 @@ script.
                         "/delete_avatar.php"
                     );
 
-                    if (data.message.includes("Đã")) {
+                    if (data.message === "Current avatar has been removed.") {
                         notyf.success(data.message);
                     } else {
                         notyf.error(data.message);
@@ -212,7 +212,7 @@ script.
                         "/update_password.php", { current_password, new_password, confirm_password }
                     );
 
-                    if (data.message.includes("thành công")) {
+                    if (data.message === "Password has been updated successfully.") {
                         notyf.success(data.message);
                     } else {
                         notyf.error(data.message);

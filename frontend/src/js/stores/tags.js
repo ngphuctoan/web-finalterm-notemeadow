@@ -45,7 +45,7 @@ export default function () {
                     }
                 );
 
-                if (data.message.includes("thành công")) {
+                if (data.message === "Tag has been renamed successfully.") {
                     notyf.success(data.message);
                 } else {
                     notyf.error(data.message);

@@ -177,10 +177,10 @@ export default function () {
                     }
                 );
 
-                if (!data.message.includes("thay đổi")) {
-                    notyf.error(data.message);
-                } else {
+                if (data.message === "Password has been changed successfully.") {
                     notyf.success(data.message);
+                } else {
+                    notyf.error(data.message);
                 }
 
                 await this.fetch();
@@ -229,7 +229,7 @@ export default function () {
                     "/note_settings.php", { id, user_id, note_color, font_size }
                 );
 
-                if (data.message.includes("đã")) {
+                if (data.message === "Note settings have been updated.") {
                     notyf.success(data.message);
                 } else {
                     notyf.error(data.message);
