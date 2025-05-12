@@ -4,14 +4,7 @@ require "config.php"; // Kết nối tới cơ sở dữ liệu
 
 session_start(); // Khởi tạo session ở đầu tệp
 
-// 🔥 Thêm header để bật CORS
-header("Access-Control-Allow-Origin: http://localhost:1234");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-
-// Trả về JSON
-header("Content-Type: application/json");
+set_cors_header();
 
 $data = json_decode(file_get_contents("php://input"), true); // Nhận dữ liệu JSON
 

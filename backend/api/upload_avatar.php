@@ -2,19 +2,8 @@
 require 'config.php'; // Database connection
 session_start();
 
-// 🔥 CORS headers
-header("Access-Control-Allow-Origin: http://localhost:1234");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-
-header('Content-Type: application/json');
-
-// Check if the user is logged in
-if (!isset($_SESSION['user_id'])) {
-    echo json_encode(['message' => 'Not logged in']);
-    exit;
-}
+set_cors_header();
+check_login();
 
 $user_id = $_SESSION['user_id'];
 

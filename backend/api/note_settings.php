@@ -3,21 +3,8 @@
 require "config.php";
 session_start();
 
-// 🔥 Thêm header để bật CORS
-header("Access-Control-Allow-Origin: http://localhost:1234");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-
-// Trả về JSON
-header("Content-Type: application/json");
-
-
-// Kiểm tra xem người dùng đã đăng nhập chưa
-if (!isset($_SESSION["user_id"])) {
-    echo json_encode(["message" => "User not logged in."]);
-    exit;
-}
+set_cors_header();
+check_login();
 
 $userId = $_SESSION["user_id"];
 

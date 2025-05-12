@@ -3,20 +3,8 @@
 require "config.php";
 session_start();
 
-// 🔥 Thêm header để bật CORS
-header("Access-Control-Allow-Origin: http://localhost:1234");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-
-// Trả về JSON
-header("Content-Type: application/json");
-
-// Kiểm tra phiên đăng nhập
-if (!isset($_SESSION["user_id"])) {
-    echo json_encode(["success" => false, "message" => "Chưa đăng nhập."]);
-    exit;
-}
+set_cors_header();
+check_login();
 
 $user_id = $_SESSION["user_id"]; // Lấy user_id từ session
 // Kiểm tra phương thức yêu cầu
@@ -25,7 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
 
     // Kiểm tra dữ liệu đầu vào
     if (empty($data["note_id"])) {
-        echo json_encode(["success" => false, "message" => "Vui lòng cung cấp note_id hợp lệ."]);
+        echo json_encode(["success" => false, "message" => "Please provide a valid note_id."]);
         exit;
     }
 
@@ -38,16 +26,16 @@ if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
         $note = $stmt->fetch(PDO::FETCH_ASSOC);
 
         if (!$note) {
-            echo json_encode(["success" => false, "message" => "Ghi chú không tồn tại hoặc bạn không có quyền xóa."]);
+            echo json_encode(["success" => false, "message" => "Note does not exist or you don't have permission to delete it."]);
             exit;
         }
 
         // Tiến hành xóa ghi chú
         $stmt = $pdo->prepare("DELETE FROM notes WHERE id = ? AND user_id = ?");
         if ($stmt->execute([$note_id, $user_id])) {
-            echo json_encode(["success" => true, "message" => "Ghi chú đã được xóa thành công."]);
+            echo json_encode(["success" => true, "message" => "Note has been deleted successfully."]);
         } else {
-            echo json_encode(["success" => false, "message" => "Xóa ghi chú không thành công."]);
+            echo json_encode(["success" => false, "message" => "Failed to delete note."]);
         }
     } catch (PDOException $e) {
         error_log("❌ SQL Error: " . $e->getMessage());

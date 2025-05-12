@@ -2,13 +2,7 @@
 
 require "config.php";
 
-// Định dạng phản hồi là JSON
-header("Content-Type: application/json");
-// Thêm CORS Headers
-header("Access-Control-Allow-Origin: http://localhost:1234");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
+set_cors_header();
 
 // Kiểm tra phương thức gọi
 if ($_SERVER["REQUEST_METHOD"] !== "GET") {

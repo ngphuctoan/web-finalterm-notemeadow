@@ -3,12 +3,7 @@
 require "config.php";
 session_start();
 
-// Enable CORS
-header("Access-Control-Allow-Origin: http://localhost:1234");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Content-Type: application/json");
+set_cors_header();
 
 // Log raw input for debugging
 $rawInput = file_get_contents("php://input");

@@ -2,14 +2,7 @@
 
 require "config.php"; // Kết nối cơ sở dữ liệu
 
-// 🔥 Thêm header để bật CORS
-header("Access-Control-Allow-Origin: http://localhost:1234");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-
-// Trả về JSON
-header("Content-Type: application/json");
+set_cors_header();
 
 // Kiểm tra phương thức yêu cầu
 if ($_SERVER["REQUEST_METHOD"] === "DELETE") {

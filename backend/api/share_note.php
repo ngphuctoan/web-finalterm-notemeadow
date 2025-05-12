@@ -4,14 +4,8 @@ require "config.php"; // Kết nối tới cơ sở dữ liệu
 require "send_email.php"; // Nhúng tệp gửi email
 session_start();
 
-// 🔥 Thêm header để bật CORS
-header("Access-Control-Allow-Origin: http://localhost:1234");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-
-// Trả về JSON
-header("Content-Type: application/json");
+set_cors_header();
+check_login();
 
 $key = "12345";
 
@@ -25,18 +19,18 @@ function encodeNumber($number, $key) {
     return str_replace(["+", "/", "="], ["-", "_", ""], $encoded); // Chuyển đổi base64 thành URL-safe base64
 }
 
-// Kiểm tra người dùng đã đăng nhập chưa
+// Check if user is logged in
 if (!isset($_SESSION["user_id"])) {
-    echo json_encode(["message" => "Chưa đăng nhập."]);
+    echo json_encode(["message" => "Not logged in."]);
     exit;
 }
 
-// PUT - Chia sẻ hoặc cập nhật quyền truy cập ghi chú
+// PUT - Share or update note access permissions
 if ($_SERVER["REQUEST_METHOD"] === "PUT") {
     $data = json_decode(file_get_contents("php://input"), true);
 
     if (!isset($data["note_id"], $data["recipients"]) || !is_array($data["recipients"])) {
-        echo json_encode(["message" => "Thiếu note_id hoặc recipients không hợp lệ."]);
+        echo json_encode(["message" => "Missing note_id or invalid recipients."]);
         exit;
     }
 
@@ -59,7 +53,7 @@ if ($_SERVER["REQUEST_METHOD"] === "PUT") {
         $deleteStmt = $pdo->prepare("DELETE FROM shared_notes WHERE note_id = ? AND recipient_email = ?");
         if ($deleteStmt->execute([$note_id, $email])) {
             $historyStmt = $pdo->prepare("INSERT INTO note_history (note_id, user_id, action) VALUES (?, ?, ?)");
-            $action = "Đã thu hồi quyền chia sẻ ghi chú với $email";
+            $action = "Share permission has been revoked for $email";
             $historyStmt->execute([$note_id, $shared_by, $action]);
         }
     }
@@ -94,7 +88,7 @@ if ($_SERVER["REQUEST_METHOD"] === "PUT") {
                 VALUES (?, ?, ?, ?, ?, NOW())
             ");
             if ($insertStmt->execute([$note_id, $recipient_email, $permission, $access_password, $shared_by])) {
-                // Gửi email + ghi lịch sử như cũ
+                // Send email + record history
                 $token = encodeNumber($note_id, $key);
                 $note_link = "http://localhost:1234/#/edit/" . $note_id;
                 $url = "https://api.qrserver.com/v1/create-qr-code/?data=" . urlencode($note_link) . "&size=200x200";
@@ -119,15 +113,15 @@ if ($_SERVER["REQUEST_METHOD"] === "PUT") {
 
                 if (sendEmail($recipient_email, $subject, $body)) {
                     $historyStmt = $pdo->prepare("INSERT INTO note_history (note_id, user_id, action) VALUES (?, ?, ?)");
-                    $action = "Đã chia sẻ ghi chú với $recipient_email";
+                    $action = "Note has been shared with $recipient_email";
                     $historyStmt->execute([$note_id, $shared_by, $action]);
 
-                    $responses[] = ["email" => $recipient_email, "message" => "Đã gửi email chia sẻ."];
+                    $responses[] = ["email" => $recipient_email, "message" => "Share email has been sent."];
                 } else {
-                    $responses[] = ["email" => $recipient_email, "message" => "Chia sẻ thành công nhưng không gửi được email."];
+                    $responses[] = ["email" => $recipient_email, "message" => "Share successful but email could not be sent."];
                 }
             } else {
-                $responses[] = ["email" => $recipient_email, "message" => "Không thể chia sẻ ghi chú."];
+                $responses[] = ["email" => $recipient_email, "message" => "Unable to share note."];
             }
         }
     }
@@ -136,7 +130,7 @@ if ($_SERVER["REQUEST_METHOD"] === "PUT") {
     exit;
 }
 
-// Lấy danh sách ghi chú bạn đã chia sẻ
+// Get list of notes you have shared
 if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET["action"]) && $_GET["action"] === "shared_by_me") {
     $user_id = $_SESSION["user_id"];
     $stmt = $pdo->prepare("
@@ -150,7 +144,7 @@ if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET["action"]) && $_GET["act
     exit;
 }
 
-// Lấy danh sách ghi chú được chia sẻ với bạn
+// Get list of notes shared with you
 if ($_SERVER["REQUEST_METHOD"] === "GET" && isset($_GET["action"]) && $_GET["action"] === "shared_with_me") {
     $email = $_SESSION["user_email"];
     $stmt = $pdo->prepare("

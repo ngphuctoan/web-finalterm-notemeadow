@@ -7,14 +7,7 @@ session_start();
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
-// 🔥 Thêm header để bật CORS
-header("Access-Control-Allow-Origin: http://localhost:1234");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
-
-// Trả về JSON
-header("Content-Type: application/json");
+set_cors_header();
 
 $expired_message = "";
 $reset = null;

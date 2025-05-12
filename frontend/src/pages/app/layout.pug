@@ -101,6 +101,7 @@ script.
 
                 if (!loginStatus.logged_in) {
                     await this.logout();
+                    return;
                 }
 
                 const media = window.matchMedia("(prefers-color-scheme: dark)");
@@ -152,7 +153,7 @@ script.
                         : placeholderAvatar(data.display_name, data.email);
         
                     this.profile = data;
-                } catch { handleServerError(err); }
+                } catch (err) { handleServerError(err); }
             },
 
             async updateProfile(profileData) {

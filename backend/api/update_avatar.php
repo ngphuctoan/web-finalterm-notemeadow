@@ -1,10 +1,5 @@
 <?php
-// Kiểm tra đăng nhập
-if (!isset($_SESSION["user_id"])) {
-    http_response_code(401);
-    echo json_encode(["message" => "Not logged in."]);
-    exit;
-}
+check_login();
 
 // Kiểm tra phương thức
 if ($_SERVER["REQUEST_METHOD"] !== "POST") {

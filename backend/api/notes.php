@@ -3,34 +3,8 @@
 require "config.php"; // Kết nối tới cơ sở dữ liệu
 session_start();
 
-
-// 🔥 Thêm header để bật CORS
-header("Access-Control-Allow-Origin: http://localhost:1234");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-
-// Trả về JSON
-header("Content-Type: application/json");
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    // Tell the browser it's okay
-    header("Access-Control-Allow-Origin: http://localhost:1234");
-    header("Access-Control-Allow-Credentials: true");
-    header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-    header("Access-Control-Allow-Headers: Content-Type");
-    http_response_code(200);
-    exit;
-}
-
-
-//Kiểm tra đăng nhập
-if (!isset($_SESSION["user_id"])) {
-    http_response_code(401);
-    echo json_encode(["message" => "Chưa đăng nhập."]);
-    exit;
-}
-
+set_cors_header();
+check_login();
 
 $key = "12345";
 
@@ -142,7 +116,7 @@ try {
                 INSERT INTO note_history (note_id, user_id, action)
                 VALUES (?, ?, ?)
             ");
-            $historyStmt->execute([$note_id, $_SESSION["user_id"], "Đã tạo mới ghi chú."]);
+            $historyStmt->execute([$note_id, $_SESSION["user_id"], "Note has been created."]);
 
             // Thêm các nhãn vào bảng note_tags
             foreach ($tagsArray as $tag) {
@@ -171,14 +145,14 @@ try {
 
             http_response_code(201);
             echo json_encode([
-                "message" => "Ghi chú đã được tạo thành công.",
+                "message" => "Note has been created successfully.",
                 "id" => $note_id,
                 "images" => $imagePaths
             ]);
         } else {
-            error_log("LỖI SQL: " . print_r($stmt->errorInfo(), true));
+            error_log("SQL ERROR: " . print_r($stmt->errorInfo(), true));
             http_response_code(500);
-            echo json_encode(["message" => "Lỗi khi lưu ghi chú."]);
+            echo json_encode(["message" => "Error saving note."]);
         }
         exit;
     }
@@ -194,7 +168,7 @@ try {
 
         if (!empty($note_id)) {
             if ($new_password !== $confirm_password) {
-                echo json_encode(["message" => "Mật khẩu mới và xác nhận mật khẩu không khớp."]);
+                echo json_encode(["message" => "New password and confirm password do not match."]);
                 exit;
             }
 
@@ -214,17 +188,17 @@ try {
                         INSERT INTO note_history (note_id, user_id, action)
                         VALUES (?, ?, ?)
                     ");
-                    $historyStmt->execute([$note_id, $_SESSION["user_id"], "Đã thay đổi mật khẩu ghi chú ".$note_id]);
+                    $historyStmt->execute([$note_id, $_SESSION["user_id"], "Password has been changed for note ".$note_id]);
 
-                    echo json_encode(["message" => "Mật khẩu đã được thay đổi."]);
+                    echo json_encode(["message" => "Password has been changed successfully."]);
                 } else {
-                    echo json_encode(["message" => "Mật khẩu hiện tại không đúng."]);
+                    echo json_encode(["message" => "Current password is incorrect."]);
                 }
             } else {
-                echo json_encode(["message" => "Ghi chú không tìm thấy."]);
+                echo json_encode(["message" => "Note not found."]);
             }
         } else {
-            echo json_encode(["message" => "Thông tin không đầy đủ."]);
+            echo json_encode(["message" => "Incomplete information."]);
         }
         exit;
     }
@@ -237,19 +211,17 @@ try {
 
         if (!empty($note_id)) {
             $stmt = $pdo->prepare("UPDATE notes SET status_pass = 1 WHERE id = ? AND user_id = ?");
-            // $stmt->execute([$note_id, $_SESSION["user_id"]]);
-            $stmt->execute([$note_id,  $user_id ]);
+            $stmt->execute([$note_id, $user_id]);
 
             $historyStmt = $pdo->prepare("
-            INSERT INTO note_history (note_id, user_id, action)
-            VALUES (?, ?, ?)
+                INSERT INTO note_history (note_id, user_id, action)
+                VALUES (?, ?, ?)
             ");
-            // $historyStmt->execute([$note_id, $_SESSION["user_id"], "Bảo vệ bằng mật khẩu đã được tắt."]);
-            $historyStmt->execute([$note_id,  $user_id , "Bảo vệ bằng mật khẩu đã được kích hoạt."]);
+            $historyStmt->execute([$note_id, $user_id, "Password protection has been enabled."]);
 
-            echo json_encode(["message" => "Bảo vệ bằng mật khẩu đã được kích hoạt."]);
+            echo json_encode(["message" => "Password protection has been enabled."]);
         } else {
-            echo json_encode(["message" => "Thông tin không đầy đủ."]);
+            echo json_encode(["message" => "Incomplete information."]);
         }
         exit;
     }
@@ -262,19 +234,17 @@ try {
 
         if (!empty($note_id)) {
             $stmt = $pdo->prepare("UPDATE notes SET status_pass = 0 WHERE id = ? AND user_id = ?");
-            // $stmt->execute([$note_id, $_SESSION["user_id"]]);
-            $stmt->execute([$note_id,  $user_id ]);
+            $stmt->execute([$note_id, $user_id]);
 
             $historyStmt = $pdo->prepare("
-            INSERT INTO note_history (note_id, user_id, action)
-            VALUES (?, ?, ?)
+                INSERT INTO note_history (note_id, user_id, action)
+                VALUES (?, ?, ?)
             ");
-            // $historyStmt->execute([$note_id, $_SESSION["user_id"], "Bảo vệ bằng mật khẩu đã được tắt."]);
-            $historyStmt->execute([$note_id,  $user_id , "Bảo vệ bằng mật khẩu đã bị vô hiệu hóa."]);
+            $historyStmt->execute([$note_id, $user_id, "Password protection has been disabled."]);
 
-            echo json_encode(["message" => "Bảo vệ bằng mật khẩu đã bị vô hiệu hóa."]);
+            echo json_encode(["message" => "Password protection has been disabled."]);
         } else {
-            echo json_encode(["message" => "Thông tin không đầy đủ."]);
+            echo json_encode(["message" => "Incomplete information."]);
         }
         exit;
     }
@@ -292,7 +262,7 @@ try {
             $user_id = $_SESSION["user_id"] ;
 
             if (empty($note_id)) {
-                echo json_encode(["error" => true, "message" => "❌ Thiếu thông tin note_id."]);
+                echo json_encode(["error" => true, "message" => "❌ Missing note_id information."]);
                 exit;
             }
 
@@ -304,13 +274,13 @@ try {
             if ($note) {
                 // Kiểm tra mật khẩu (nếu có)
                 if (empty($note["password"]) || $note["password"] === $input_password) {
-                    echo json_encode(["success" => true, "message" => "✅ Truy cập thành công.", "note" => $note]);
+                    echo json_encode(["success" => true, "message" => "✅ Access successful.", "note" => $note]);
                 } else {
-                    echo json_encode(["error" => true, "message" => "❌ Mật khẩu không đúng."]);
+                    echo json_encode(["error" => true, "message" => "❌ Incorrect password."]);
                 }
 
             } else {
-                echo json_encode(["error" => true, "message" => "❌ Ghi chú không tồn tại hoặc không thuộc quyền truy cập."]);
+                echo json_encode(["error" => true, "message" => "❌ Note does not exist or you don't have access."]);
             }
             exit;
         }
@@ -321,7 +291,7 @@ try {
             $input_password = $_GET["password"] ?? null;
 
             if (empty($note_id)) {
-                echo json_encode(["error" => true, "message" => "❌ Thiếu thông tin note_id."]);
+                echo json_encode(["error" => true, "message" => "❌ Missing note_id information."]);
                 exit;
             }
 
@@ -352,12 +322,12 @@ try {
                         "can_edit" => ($shared_note["permission"] === "edit")
                     ];
 
-                    echo json_encode(["success" => true, "message" => "✅ Truy cập thành công.", "note" => $note_data]);
+                    echo json_encode(["success" => true, "message" => "✅ Access successful.", "note" => $note_data]);
                 } else {
-                    echo json_encode(["error" => true, "message" => "❌ Ghi chú không tồn tại."]);
+                    echo json_encode(["error" => true, "message" => "❌ Note does not exist."]);
                 }
             } else {
-                echo json_encode(["error" => true, "message" => "❌ Ghi chú không tồn tại hoặc không thuộc quyền truy cập."]);
+                echo json_encode(["error" => true, "message" => "❌ Note does not exist or you don't have access."]);
             }
             exit;
         }
@@ -388,7 +358,7 @@ try {
 
                 echo json_encode(["success" => true, "notes" => $notes]);
             } else {
-                echo json_encode(["error" => true, "message" => "❌ Người dùng chưa đăng nhập."]);
+                echo json_encode(["error" => true, "message" => "❌ User not logged in."]);
             }
             exit;
         }
@@ -417,10 +387,10 @@ try {
                 if ($history) {
                     echo json_encode(["history" => $history]);
                 } else {
-                    echo json_encode(["message" => "Không có dữ liệu lịch sử."]);
+                    echo json_encode(["message" => "No history data available."]);
                 }
             } else {
-                echo json_encode(["message" => "Người dùng chưa đăng nhập."]);
+                echo json_encode(["message" => "User not logged in."]);
             }
             exit;
         }
@@ -447,10 +417,10 @@ try {
                 if ($history) {
                     echo json_encode(["history" => $history]);
                 } else {
-                    echo json_encode(["message" => "Không có dữ liệu lịch sử cho ghi chú này."]);
+                    echo json_encode(["message" => "No history data available for this note."]);
                 }
             } else {
-                echo json_encode(["message" => "Người dùng chưa đăng nhập."]);
+                echo json_encode(["message" => "User not logged in."]);
             }
             exit;
         }
@@ -498,11 +468,11 @@ try {
     }
 
     // Nếu không có action hợp lệ
-    echo json_encode(["error" => true, "message" => "⚠ Hành động không hợp lệ."]);
+    echo json_encode(["error" => true, "message" => "⚠ Invalid action."]);
     exit;
 
 
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(["message" => "Lỗi khi lưu dữ liệu: " . htmlspecialchars($e->getMessage())]);
+    echo json_encode(["message" => "Error saving data: " . htmlspecialchars($e->getMessage())]);
 }

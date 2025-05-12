@@ -3,19 +3,8 @@
 require "config.php"; // Kết nối cơ sở dữ liệu
 session_start();
 
-// Định dạng phản hồi là JSON
-header("Content-Type: application/json");
-// Thêm CORS Headers
-header("Access-Control-Allow-Origin: http://localhost:1234");
-header("Access-Control-Allow-Credentials: true"); // Cho phép tất cả nguồn (có thể thay * bằng localhost:3000)
-header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
-
-// Kiểm tra xem người dùng đã đăng nhập hay chưa
-if (!isset($_SESSION["user_id"])) {
-    echo json_encode(["message" => "Not logged in."]);
-    exit;
-}
+set_cors_header();
+check_login();
 
 $user_id = $_SESSION["user_id"];
 

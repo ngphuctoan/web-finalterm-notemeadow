@@ -3,31 +3,8 @@
 require "config.php"; // Kết nối tới cơ sở dữ liệu
 session_start();
 
-// 🔥 Thêm header để bật CORS
-header("Access-Control-Allow-Origin: http://localhost:1234");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-
-// Trả về JSON
-header("Content-Type: application/json");
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    // Tell the browser it's okay
-    header("Access-Control-Allow-Origin: http://localhost:1234");
-    header("Access-Control-Allow-Credentials: true");
-    header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-    header("Access-Control-Allow-Headers: Content-Type");
-    http_response_code(200);
-    exit;
-}
-
-// Kiểm tra đăng nhập
-if (!isset($_SESSION["user_id"])) {
-    http_response_code(401);
-    echo json_encode(["message" => "Not logged in."]);
-    exit;
-}
+set_cors_header();
+check_login();
 
 try {
     // **1. Xem danh sách nhãn (GET)**
