@@ -25,7 +25,7 @@ export default function () {
                     "/tags.php?action=add_tag", { name }
                 );
 
-                if (data.message === "Tag has been added successfully.") {
+                if (data.message === "Tag has been added.") {
                     notyf.success(data.message);
                 } else {
                     notyf.error(data.message);
@@ -45,7 +45,7 @@ export default function () {
                     }
                 );
 
-                if (data.message === "Tag has been renamed successfully.") {
+                if (data.message === "Tag has been renamed.") {
                     notyf.success(data.message);
                 } else {
                     notyf.error(data.message);
@@ -63,7 +63,7 @@ export default function () {
                     }
                 );
 
-                if (data.message === "Tag has been deleted successfully.") {
+                if (data.message === "Tag has been deleted.") {
                     notyf.success(data.message);
                 } else {
                     notyf.error(data.message);
