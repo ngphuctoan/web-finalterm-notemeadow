@@ -95,14 +95,11 @@ script.
             },
     
             async init() {
-                const { data: loginStatus } = await axiosInstance.get(
-                    "/check_login.php"
-                );
-
-                if (!loginStatus.logged_in) {
-                    await this.logout();
-                    return;
-                }
+                try {
+                    await axiosInstance.get(
+                        "/check_login.php"
+                    );
+                } catch { this.$router.navigate("/login") }
 
                 const media = window.matchMedia("(prefers-color-scheme: dark)");
 
@@ -149,7 +146,7 @@ script.
                     delete data.password;
 
                     data.image = data.image
-                        ? `${API_URL}/api/${data.image}`
+                        ? `${API_URL}/${data.image}`
                         : placeholderAvatar(data.display_name, data.email);
         
                     this.profile = data;
@@ -181,7 +178,7 @@ script.
                         "/upload_avatar.php", formData
                     );
 
-                    if (data.message === "Avatar has been updated successfully.") {
+                    if (data.message === "Avatar updated successfully.") {
                         notyf.success(data.message);
                     } else {
                         notyf.error(data.message);

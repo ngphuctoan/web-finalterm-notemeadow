@@ -1,67 +1,47 @@
 <?php
 
-require "config.php"; // Database connection
+require_once "config.php"; // Database connection
 session_start();
 
 set_cors_header();
 check_login();
 
-// Kiểm tra phương thức
-if ($_SERVER["REQUEST_METHOD"] !== "POST") {
-    http_response_code(405);
-    echo json_encode(["message" => "Method not allowed."]);
-    exit;
-}
+$user_id = $_SESSION["user_id"];
 
-try {
-    // Kiểm tra xem có file được upload không
-    if (!isset($_FILES["image"]) || $_FILES["image"]["error"] !== UPLOAD_ERR_OK) {
-        http_response_code(400);
-        echo json_encode(["message" => "No file uploaded or upload error."]);
+// Check if file is uploaded
+if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_FILES["image"])) {
+    $target_dir = __DIR__ . "/../uploads/images/";
+    $public_path = "/uploads/images/";
+
+    // Create the uploads/images directory if it doesn't exist
+    if (!is_dir($target_dir)) {
+        if (!mkdir($target_dir, 0777, true)) {
+            echo json_encode(["message" => "Unable to create upload directory."]);
+            exit;
+        }
+    }
+
+    // Generate a unique filename with original extension
+    $extension = pathinfo($_FILES["image"]["name"], PATHINFO_EXTENSION);
+    $filename = uniqid() . "." . $extension;
+    $target_file = $target_dir . $filename;
+
+    // Allowed image formats
+    $allowed_types = ["jpg", "jpeg", "png", "gif"];
+    if (!in_array(strtolower($extension), $allowed_types)) {
+        echo json_encode(["message" => "Only JPG, JPEG, PNG, and GIF files are allowed."]);
         exit;
     }
 
-    $file = $_FILES["image"];
-    $allowed_types = ["image/jpeg", "image/png", "image/gif"];
-    $max_size = 5 * 1024 * 1024; // 5MB
-
-    // Kiểm tra loại file
-    if (!in_array($file["type"], $allowed_types)) {
-        http_response_code(400);
-        echo json_encode(["message" => "Invalid file type. Only JPG, PNG and GIF are allowed."]);
-        exit;
-    }
-
-    // Kiểm tra kích thước file
-    if ($file["size"] > $max_size) {
-        http_response_code(400);
-        echo json_encode(["message" => "File size exceeds limit. Maximum size is 5MB."]);
-        exit;
-    }
-
-    // Tạo tên file mới
-    $extension = pathinfo($file["name"], PATHINFO_EXTENSION);
-    $new_filename = uniqid() . "." . $extension;
-    $upload_dir = "../uploads/images/";
-
-    // Tạo thư mục nếu chưa tồn tại
-    if (!file_exists($upload_dir)) {
-        mkdir($upload_dir, 0777, true);
-    }
-
-    $target_path = $upload_dir . $new_filename;
-
-    // Di chuyển file
-    if (move_uploaded_file($file["tmp_name"], $target_path)) {
+    // Move file
+    if (move_uploaded_file($_FILES["image"]["tmp_name"], $target_file)) {
         echo json_encode([
             "message" => "Image uploaded successfully.",
-            "image" => $new_filename
+            "file_path" => $public_path . $filename
         ]);
     } else {
-        http_response_code(500);
-        echo json_encode(["message" => "Failed to upload file."]);
+        echo json_encode(["message" => "Error uploading image."]);
     }
-} catch (PDOException $e) {
-    http_response_code(500);
-    echo json_encode(["message" => "Error uploading image: " . $e->getMessage()]);
+} else {
+    echo json_encode(["message" => "Invalid request or no image file found."]);
 }

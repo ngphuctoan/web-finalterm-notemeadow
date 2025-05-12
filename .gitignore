@@ -1,6 +1,9 @@
 .env
+!data
+data/*
 backend/vendor
-backend/api/uploads/*
+!backend/uploads/images
+backend/uploads/images/*
 frontend/.parcel-cache
 frontend/dist
 frontend/node_modules

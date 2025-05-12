@@ -1,5 +1,5 @@
 <?php
-require "config.php"; // Kết nối tới cơ sở dữ liệu
+require_once "config.php"; // Kết nối tới cơ sở dữ liệu
 
 set_cors_header();
 check_login();

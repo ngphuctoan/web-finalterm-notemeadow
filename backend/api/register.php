@@ -1,6 +1,6 @@
 <?php
 
-require "config.php";
+require_once "config.php";
 require "send_email.php"; // Include the email sending function
 
 set_cors_header();

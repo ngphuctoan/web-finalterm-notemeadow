@@ -1,6 +1,6 @@
 <?php
 
-require "config.php"; // Kết nối tới cơ sở dữ liệu
+require_once "config.php"; // Kết nối tới cơ sở dữ liệu
 require "send_email.php"; // Nhúng tệp gửi email
 session_start();
 

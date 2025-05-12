@@ -1,6 +1,6 @@
 <?php
 
-require "config.php"; // Kết nối tới cơ sở dữ liệu
+require_once "config.php"; // Kết nối tới cơ sở dữ liệu
 session_start();
 
 set_cors_header();
@@ -85,7 +85,7 @@ try {
 
                 // Commit transaction nếu không có lỗi
                 $pdo->commit();
-                echo json_encode(["message" => "Tag has been successfully renamed in both tables."]);
+                echo json_encode(["message" => "Tag has been renamed."]);
             } catch (Exception $e) {
                 // Rollback nếu có lỗi
                 $pdo->rollBack();

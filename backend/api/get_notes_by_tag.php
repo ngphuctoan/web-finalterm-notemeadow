@@ -1,6 +1,6 @@
 <?php
 
-require "config.php"; // Kết nối database
+require_once "config.php"; // Kết nối database
 session_start();
 
 set_cors_header();
