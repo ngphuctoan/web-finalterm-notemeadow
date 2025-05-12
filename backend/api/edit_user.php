@@ -1,34 +1,10 @@
 <?php
 
-require "config.php"; // Kết nối cơ sở dữ liệu
+require_once "config.php"; // Kết nối cơ sở dữ liệu
 session_start();
 
-
-// 🔥 Thêm header để bật CORS
-header("Access-Control-Allow-Origin: http://localhost:1234");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-
-// Trả về JSON
-header("Content-Type: application/json");
-
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    // Tell the browser it's okay
-    header("Access-Control-Allow-Origin: http://localhost:1234");
-    header("Access-Control-Allow-Credentials: true");
-    header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-    header("Access-Control-Allow-Headers: Content-Type");
-    http_response_code(200);
-    exit;
-}
-
-// Kiểm tra phiên đăng nhập
-if (!isset($_SESSION["user_id"])) {
-    http_response_code(401);
-    echo json_encode(["message" => "Chưa đăng nhập."]);
-    exit;
-}
+set_cors_header();
+check_login();
 
 // Lấy user_id từ session
 $user_id = $_SESSION["user_id"];
@@ -36,7 +12,7 @@ $user_id = $_SESSION["user_id"];
 // Kiểm tra phương thức yêu cầu
 if ($_SERVER["REQUEST_METHOD"] !== "PUT") {
     http_response_code(405);
-    echo json_encode(["message" => "Phương thức không hợp lệ."]);
+    echo json_encode(["message" => "Method Not Allowed."]);
     exit;
 }
 
@@ -80,7 +56,7 @@ if (isset($data["theme"])) {
 // Nếu không có trường nào được cung cấp để cập nhật
 if (empty($updateFields)) {
     http_response_code(400);
-    echo json_encode(["message" => "Vui lòng cung cấp ít nhất một trường để cập nhật."]);
+    echo json_encode(["message" => "Please provide at least one field to update."]);
     exit;
 }
 
@@ -94,12 +70,12 @@ $stmt = $pdo->prepare($sql);
 try {
     // Thực hiện câu lệnh cập nhật
     if ($stmt->execute($params)) {
-        echo json_encode(["message" => "Thông tin người dùng đã được cập nhật."]);
+        echo json_encode(["message" => "User information has been updated."]);
     } else {
         http_response_code(500);
-        echo json_encode(["message" => "Cập nhật thông tin không thành công."]);
+        echo json_encode(["message" => "Failed to update information."]);
     }
 } catch (PDOException $e) {
     http_response_code(500);
-    echo json_encode(["message" => "Lỗi khi cập nhật dữ liệu: " . htmlspecialchars($e->getMessage())]);
+    echo json_encode(["message" => "Error updating data: " . htmlspecialchars($e->getMessage())]);
 }

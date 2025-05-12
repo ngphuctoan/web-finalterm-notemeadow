@@ -1,15 +1,8 @@
 <?php
 
-require "config.php"; // Kết nối cơ sở dữ liệu
+require_once "config.php"; // Kết nối cơ sở dữ liệu
 
-// 🔥 Thêm header để bật CORS
-header("Access-Control-Allow-Origin: http://localhost:1234");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-
-// Trả về JSON
-header("Content-Type: application/json");
+set_cors_header();
 
 // Kiểm tra phương thức yêu cầu
 if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
@@ -20,7 +13,7 @@ if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
     $user_id = $data->user_id ?? null;
 
     if (!$user_id) {
-        echo json_encode(["message" => "user_id là bắt buộc."]);
+        echo json_encode(["message" => "user_id is required."]);
         exit;
     }
 
@@ -39,13 +32,13 @@ if ($_SERVER["REQUEST_METHOD"] === "DELETE") {
         // Xóa người dùng khỏi cơ sở dữ liệu
         $stmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
         if ($stmt->execute([$user_id])) {
-            echo json_encode(["message" => "Người dùng đã được xóa thành công."]);
+            echo json_encode(["message" => "User has been successfully deleted."]);
         } else {
-            echo json_encode(["message" => "Không thể xóa người dùng."]);
+            echo json_encode(["message" => "Unable to delete user."]);
         }
     } else {
-        echo json_encode(["message" => "Người dùng không tồn tại."]);
+        echo json_encode(["message" => "User does not exist."]);
     }
 } else {
-    echo json_encode(["message" => "Phương thức không hợp lệ."]);
+    echo json_encode(["message" => "Invalid method."]);
 }
