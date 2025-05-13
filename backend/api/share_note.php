@@ -120,9 +120,9 @@ if ($_SERVER["REQUEST_METHOD"] === "PUT") {
                     </p>
 
                     <div style="text-align: center; margin: 24px 0;">
-                    <img src="$url" alt="QR Code" style="max-width: 200px; border: 1px solid #e5e7eb; padding: 8px; border-radius: 8px;" />
+                    <img src="$url" alt="QR Code" style="max-width: 200px; border: 1px solid #e5e7eb; padding: 8px; border-radius: 5px;" />
                     <br />
-                    <a href="$note_link" style="display: inline-block; margin-top: 16px; background-color: #d89614; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                    <a href="$note_link" style="display: inline-block; margin-top: 16px; background-color: #d89614; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: 600;">
                         Open Note
                     </a>
                     </div>
@@ -133,7 +133,7 @@ if ($_SERVER["REQUEST_METHOD"] === "PUT") {
 
                     <p style="margin-top: 32px; color: #6b7280;">
                     Best regards,<br />
-                    <strong>NoteMeadow Team</strong>
+                    <strong>notemeadow Team</strong>
                     </p>
                 </div>
                 </body>

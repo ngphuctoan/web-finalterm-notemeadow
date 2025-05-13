@@ -61,7 +61,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; padding: 40px 0;">
                     <tr>
                     <td align="center">
-                        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden;">
+                        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden;">
                         <!-- Header -->
                         <tr>
                             <td align="center" style="background-color: #d89614; padding: 24px;">
@@ -78,7 +78,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                             </p>
 
                             <div style="text-align: center; margin: 32px 0;">
-                                <a href="$resetLink" style="background-color: #d89614; color: #ffffff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                                <a href="$resetLink" style="background-color: #d89614; color: #ffffff; padding: 12px 24px; border-radius: 5px; text-decoration: none; font-weight: 600;">
                                 Reset Password
                                 </a>
                             </div>
@@ -95,7 +95,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
 
                             <p style="margin-top: 32px; font-size: 14px; color: #6b7280;">
                                 Best regards,<br>
-                                <strong>NoteMeadow Team</strong>
+                                <strong>notemeadow Team</strong>
                             </p>
                             </td>
                         </tr>
@@ -103,7 +103,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                         <!-- Footer -->
                         <tr>
                             <td align="center" style="padding: 20px; font-size: 12px; color: #9ca3af;">
-                            &copy; 2025 NoteMeadow. All rights reserved.
+                            &copy; 2025 notemeadow. All rights reserved.
                             </td>
                         </tr>
                         </table>
