@@ -3,6 +3,17 @@ notemeadow :potted_plant:
 
 A minimal note-taking app with rich text support, image uploads, tags organisation, sharing and real-time collaboration.
 
+## Contributors
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
 ## Development
 
 Spin up the services (MySQL database, y-websocket and the backend itself):
