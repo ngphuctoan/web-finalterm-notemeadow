@@ -99,7 +99,10 @@ script.
                     await axiosInstance.get(
                         "/check_login.php"
                     );
-                } catch { this.$router.navigate("/login") }
+                } catch {
+                    this.$router.navigate("/login");
+                    return;
+                }
 
                 const media = window.matchMedia("(prefers-color-scheme: dark)");
 
