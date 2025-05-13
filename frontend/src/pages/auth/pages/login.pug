@@ -5,6 +5,16 @@ block script
         Alpine.data("login", function () {
             return {
                 loading: false,
+
+                async init() {
+                    const { data } = await axiosInstance.get(
+                        "/check_login.php"
+                    );
+
+                    if (data.logged_in) {
+                        this.$router.navigate("/");
+                    }
+                },
         
                 async login() {
                     await withLoading((v) => this.loading = v, async () => {

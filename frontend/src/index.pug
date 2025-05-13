@@ -21,7 +21,9 @@ html(lang="en", x-data, :class="$store.theme")
         +x-route("/edit/:id", "app/pages/edit")
         +x-route("/settings", "app/pages/settings")
 
-        each route in ["login", "register", "forgot", "reset"]
+        each route in ["login", "register", "forgot"]
             +x-route(`/${route}`, `auth/pages/${route}`)
+
+        +x-route("/reset/:token", "auth/pages/reset")
 
         main#app

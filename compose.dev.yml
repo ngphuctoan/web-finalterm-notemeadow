@@ -2,3 +2,5 @@ services:
   backend:
     build:
       dockerfile: Dockerfile.dev
+    volumes:
+      - ./backend:/var/www/html

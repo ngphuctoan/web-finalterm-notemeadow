@@ -1,6 +1,8 @@
 <?php
 require_once "config.php"; // Kết nối tới cơ sở dữ liệu
 
+session_start();
+
 set_cors_header();
 check_login();
 

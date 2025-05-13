@@ -95,11 +95,11 @@ script.
             },
     
             async init() {
-                try {
-                    await axiosInstance.get(
-                        "/check_login.php"
-                    );
-                } catch {
+                const { data: loginStatus } = await axiosInstance.get(
+                    "/check_login.php"
+                );
+
+                if (!loginStatus.logged_in) {
                     this.$router.navigate("/login");
                     return;
                 }
@@ -149,7 +149,7 @@ script.
                     delete data.password;
 
                     data.image = data.image
-                        ? `${API_URL}/${data.image}`
+                        ? `${API_URL}${data.image}`
                         : placeholderAvatar(data.display_name, data.email);
         
                     this.profile = data;
@@ -523,12 +523,12 @@ block script
 
                         if (data.exists) {
                             if (emailInput === profile.email) {
-                                notyf.error("Cannot add yourself as the recipient");
+                                notyf.error("Cannot add yourself as the recipient.");
                             } else if (shared.every((s) => s.recipient !== emailInput)) {
                                 shared.push({ recipient: emailInput, permission: "read" });
                             }
                         } else {
-                            notyf.error(data.error || "No user with that email found");
+                            notyf.error(data.error || "No user with that email found.");
                         }
                     `)
                         i.fa.fa-plus

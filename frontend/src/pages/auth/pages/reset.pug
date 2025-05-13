@@ -1,0 +1,29 @@
+extends ../layout
+
+block script
+    script.
+        notyf.error("Work in progress!")
+
+block title
+    | Reset password
+
+block content
+    form#forgot.flex.flex-col.gap-4(
+        x-data="{ loading: false }",
+        x-init="console.log($params.token)",
+        @submit.prevent=`withLoading((v) => loading = v, () => {})`
+    )
+        p.opacity-70
+            | Enter a new password to recover your account.
+
+        label(for="password")
+            span Password
+            input#password.form-input(type="password", name="password", autocomplete="new-password")
+
+        label(for="confirm-password")
+            span Confirm Password
+            input#confirm-password.form-input(type="password", name="password_confirmation", autocomplete="new-password")
+
+        button.btn.mt-2.text-white.bg-primary(type="submit", :disabled="loading")
+            .spinner.me-2(:class="{ 'hidden': !loading }")
+            | Update password

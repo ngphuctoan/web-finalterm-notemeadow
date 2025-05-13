@@ -37,7 +37,7 @@ block script
                     if (filePath) {
                         const range = quill.getSelection();
                         quill.insertEmbed(range.index, "image", filePath);
-                        onUpdate(quill.getContents());  // Updates the note after embedding the image
+                        onUpdate(quill.getContents().ops);  // Updates the note after embedding the image
                     }
                 }
             });
@@ -131,7 +131,7 @@ block script
                         },
                         onImageUpload: async (file) => {
                             const path = await uploadImage(file);
-                            return path ? `${API_URL}/api/${path}` : null;
+                            return path ? `${API_URL}${path}` : null;
                         }
                     });
 
