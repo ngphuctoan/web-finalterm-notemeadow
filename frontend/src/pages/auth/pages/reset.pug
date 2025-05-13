@@ -2,7 +2,25 @@ extends ../layout
 
 block script
     script.
-        notyf.error("Work in progress!")
+        async function resetPassword(token, new_password) {
+            try {
+                const { data } = await axiosInstance.post(
+                    `/reset_password_form.php?token=${token}`,
+                    new URLSearchParams({ new_password })
+                );
+
+                notyf.success(data.message);
+                return true;
+            } catch (err) {
+                if (err.response) {
+                    notyf.error(err.response.data.message);
+                } else {
+                    handleServerError(err);
+                }
+
+                return false;
+            }
+        }
 
 block title
     | Reset password
@@ -10,8 +28,11 @@ block title
 block content
     form#forgot.flex.flex-col.gap-4(
         x-data="{ loading: false }",
-        x-init="console.log($params.token)",
-        @submit.prevent=`withLoading((v) => loading = v, () => {})`
+        @submit.prevent=`withLoading((v) => loading = v, async () => {
+            if (await resetPassword($params.token, $el.password.value)) {
+                $router.navigate("/login");
+            }
+        })`
     )
         p.opacity-70
             | Enter a new password to recover your account.
@@ -19,10 +40,6 @@ block content
         label(for="password")
             span Password
             input#password.form-input(type="password", name="password", autocomplete="new-password")
-
-        label(for="confirm-password")
-            span Confirm Password
-            input#confirm-password.form-input(type="password", name="password_confirmation", autocomplete="new-password")
 
         button.btn.mt-2.text-white.bg-primary(type="submit", :disabled="loading")
             .spinner.me-2(:class="{ 'hidden': !loading }")
