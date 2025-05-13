@@ -1,0 +1,27 @@
+{
+  "files": [
+    "README.md"
+  ],
+  "imageSize": 100,
+  "commit": false,
+  "commitType": "docs",
+  "commitConvention": "angular",
+  "contributors": [
+    {
+      "login": "Im-Karl",
+      "name": "Im-Karl",
+      "avatar_url": "https://avatars.githubusercontent.com/u/152507897?v=4",
+      "profile": "https://github.com/Im-Karl",
+      "contributions": [
+        "design",
+        "code"
+      ]
+    }
+  ],
+  "contributorsPerLine": 7,
+  "skipCi": true,
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "projectName": "web-finalterm-notemeadow",
+  "projectOwner": "ngphuctoan"
+}
