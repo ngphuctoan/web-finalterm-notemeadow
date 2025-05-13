@@ -23,10 +23,10 @@ function sendActivationEmail($to, $user_name, $activation_token)
   <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f9fafb; padding: 40px 0;">
     <tr>
       <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden;">
+        <table width="600" cellpadding="0" cellspacing="0" style="background-color: #ffffff; border-radius: 10px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); overflow: hidden;">
           <!-- Header -->
           <tr>
-            <td align="center" style="background-color: #00BFFF; padding: 24px;">
+            <td align="center" style="background-color: #d89614; padding: 24px;">
               <h1 style="color: white; font-size: 28px; margin: 0;">Confirm Your Email</h1>
             </td>
           </tr>
@@ -35,7 +35,7 @@ function sendActivationEmail($to, $user_name, $activation_token)
           <tr>
             <td style="padding: 30px;">
               <p style="font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
-                Thank you for signing up for <strong>NoteMeadow</strong>! You're just one step away from accessing your notes.
+                Thank you for signing up for <strong>notemeadow</strong>! You're just one step away from accessing your notes.
               </p>
 
               <p style="font-size: 16px; line-height: 1.6; margin-bottom: 24px;">
@@ -43,7 +43,7 @@ function sendActivationEmail($to, $user_name, $activation_token)
               </p>
 
               <div style="text-align: center; margin: 32px 0;">
-                <a href="$activation_link" style="background-color: #00BFFF; color: #ffffff; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: 600;">
+                <a href="$activation_link" style="background-color: #d89614; color: #ffffff; padding: 12px 24px; border-radius: 5px; text-decoration: none; font-weight: 600;">
                   Verify My Email
                 </a>
               </div>
@@ -51,16 +51,16 @@ function sendActivationEmail($to, $user_name, $activation_token)
               <p style="font-size: 14px; color: #6b7280; line-height: 1.6; margin-bottom: 20px;">
                 If the button doesn't work, copy and paste this link into your browser:
                 <br>
-                <a href="$activation_link" style="color: #d10024; word-break: break-all;">$activation_link</a>
+                <a href="$activation_link" style="color: #00BFFF; word-break: break-all;">$activation_link</a>
               </p>
 
               <p style="font-size: 14px; color: #6b7280;">
-                Once verified, you'll officially become part of the NoteMeadow community.
+                Once verified, you'll officially become part of the notemeadow community.
               </p>
 
               <p style="margin-top: 32px; font-size: 14px; color: #6b7280;">
                 See you there!<br>
-                <strong>The NoteMeadow Team</strong>
+                <strong>The notemeadow Team</strong>
               </p>
             </td>
           </tr>
@@ -68,7 +68,7 @@ function sendActivationEmail($to, $user_name, $activation_token)
           <!-- Footer -->
           <tr>
             <td align="center" style="padding: 20px; font-size: 12px; color: #9ca3af;">
-              &copy; 2025 NoteMeadow. All rights reserved.
+              &copy; 2025 notemeadow. All rights reserved.
             </td>
           </tr>
         </table>

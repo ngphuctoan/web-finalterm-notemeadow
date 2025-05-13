@@ -102,36 +102,46 @@ if ($_SERVER["REQUEST_METHOD"] === "PUT") {
                 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600&display=swap" rel="stylesheet" />
                 </head>
                 <body style="font-family: 'Plus Jakarta Sans', sans-serif; background-color: #f9fafb; padding: 20px; color: #111827; line-height: 1.6;">
-                <div style="max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; padding: 30px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
-                    <h2 style="color: #d89614; margin-bottom: 16px;">Hello, <span style="color: #111827;">$recipient_email!</span></h2>
+                <table role="presentation" style="width: 100%; max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                    <!-- Header -->
+                    <tr>
+                    <td align="center" style="background-color: #d89614; padding: 24px;">
+                        <h1 style="color: white; font-size: 28px; margin: 0;">Share With Everyone</h1>
+                    </td>
+                    </tr>
+                    
+                    <!-- Body Content -->
+                    <tr>
+                    <td style="padding: 30px; color: #111827;">
+                        <p style="margin-bottom: 12px;">
+                        You have been invited to view a note with <strong>$permission</strong> permissions.
+                        </p>
+                        <p style="margin-bottom: 12px;">
+                        Click the button below or scan the QR code to access the note:
+                        </p>
 
-                    <p style="margin-bottom: 12px;">
-                    You have been invited to view a note with <strong>$permission</strong> permissions.
-                    </p>
+                        <div style="text-align: center; margin: 24px 0;">
+                        <img src="$url" alt="QR Code" style="max-width: 200px; border: 1px solid #e5e7eb; padding: 8px; border-radius: 5px;" />
+                        <br />
+                        <a href="$note_link" style="display: inline-block; margin-top: 16px; background-color: #d89614; color: white; padding: 10px 20px; border-radius: 5px; text-decoration: none; font-weight: 600;">
+                            Open Note
+                        </a>
+                        </div>
 
-                    <p style="margin-bottom: 12px;">
-                    Click the button below or scan the QR code to access the note:
-                    </p>
+                        <p style="margin-bottom: 8px;">
+                        <strong>Password:</strong> <span style="background: #f3f4f6; padding: 4px 8px; border-radius: 6px;">$access_password</span>
+                        </p>
 
-                    <div style="text-align: center; margin: 24px 0;">
-                    <img src="$url" alt="QR Code" style="max-width: 200px; border: 1px solid #e5e7eb; padding: 8px; border-radius: 8px;" />
-                    <br />
-                    <a href="$note_link" style="display: inline-block; margin-top: 16px; background-color: #d89614; color: white; padding: 10px 20px; border-radius: 8px; text-decoration: none; font-weight: 600;">
-                        Open Note
-                    </a>
-                    </div>
-
-                    <p style="margin-bottom: 8px;">
-                    <strong>Password:</strong> <span style="background: #f3f4f6; padding: 4px 8px; border-radius: 6px;">$access_password</span>
-                    </p>
-
-                    <p style="margin-top: 32px; color: #6b7280;">
-                    Best regards,<br />
-                    <strong>NoteMeadow Team</strong>
-                    </p>
-                </div>
+                        <p style="margin-top: 32px; color: #6b7280;">
+                        Best regards,<br />
+                        <strong>notemeadow Team</strong>
+                        </p>
+                    </td>
+                    </tr>
+                </table>
                 </body>
                 </html>
+
                 EOD;
 
                 if (sendEmail($recipient_email, $subject, $body)) {
