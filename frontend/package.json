@@ -5,7 +5,7 @@
     "source": "./src/**/*.pug",
     "scripts": {
         "start": "parcel",
-        "build": "parcel build"
+        "build": "parcel build --no-scope-hoist"
     },
     "dependencies": {
         "@alpinejs/persist": "^3.14.9",
