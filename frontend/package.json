@@ -4,7 +4,8 @@
     "type": "module",
     "source": "./src/**/*.pug",
     "scripts": {
-        "start": "parcel"
+        "start": "parcel",
+        "build": "parcel build"
     },
     "dependencies": {
         "@alpinejs/persist": "^3.14.9",

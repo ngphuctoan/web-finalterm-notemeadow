@@ -1,16 +1,12 @@
 <?php
-require "config.php";
+require_once "config.php";
 session_start();
 
 // Bật hiển thị lỗi
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
-// 🔥 Thêm header để bật CORS
-header("Access-Control-Allow-Origin: http://localhost:1234");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Authorization");
+set_cors_header();
 
 $expired_message = "";
 $reset = null;
@@ -29,21 +25,21 @@ if ($token) {
 
         if ($current_time > $expires) {
             http_response_code(400);
-            echo json_encode(["message" => "Liên kết đã hết hạn. Vui lòng yêu cầu một liên kết mới."]);
+            echo json_encode(["message" => "Link has expired. Please request a new link."]);
             exit;
         }
     } else {
         http_response_code(400);
-        echo json_encode(["message" => "Mã xác thực không hợp lệ. Vui lòng kiểm tra lại."]);
+        echo json_encode(["message" => "Invalid verification code. Please check again."]);
         exit;
     }
 }
 ?>
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Đặt Lại Mật Khẩu</title>
+    <title>Reset Password</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -88,14 +84,14 @@ if ($token) {
     </style>
 </head>
 <body>
-    <h2>Đặt Lại Mật Khẩu</h2>
+    <h2>Reset Password</h2>
     <?php if (!isset($reset) || $expired_message || $current_time > ($reset["expires"] ?? "")): ?>
-        <p><?php echo htmlspecialchars($expired_message); ?> hoặc liên kết đặt lại mật khẩu đã hết hạn.</p>
+        <p><?php echo htmlspecialchars($expired_message); ?> or the password reset link has expired.</p>
     <?php else: ?>
         <form action="reset_password_form.php?token=<?php echo htmlspecialchars($token); ?>" method="POST">
-            <label for="new_password">Mật khẩu mới:</label>
+            <label for="new_password">New password:</label>
             <input type="password" name="new_password" required>
-            <button type="submit">Cập nhật mật khẩu</button>
+            <button type="submit">Update password</button>
         </form>
     <?php endif; ?>
 </body>

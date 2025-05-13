@@ -1,18 +1,9 @@
 <?php
 
-require "config.php";
+require_once "config.php";
 session_start();
 
-
-// 🔥 Thêm header để bật CORS
-header("Access-Control-Allow-Origin: http://localhost:1234");
-header("Access-Control-Allow-Credentials: true");
-header("Access-Control-Allow-Methods: GET, POST, PUT, PATCH, DELETE, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
-
-// Trả về JSON
-header("Content-Type: application/json");
-
+set_cors_header();
 
 $key = "12345";
 
@@ -40,7 +31,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $note_id = $note_id_encode;
 
     } else {
-        echo json_encode(["message" => "Vui lòng cung cấp note_id và access_password."]);
+        echo json_encode(["message" => "Please provide note_id and access_password."]);
         exit;
     }
 } elseif ($_SERVER["REQUEST_METHOD"] === "GET") {
@@ -52,11 +43,11 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
         $note_id = $note_id_encode;
 
     } else {
-        echo json_encode(["message" => "Vui lòng cung cấp note_id và access_password."]);
+        echo json_encode(["message" => "Please provide note_id and access_password."]);
         exit;
     }
 } else {
-    echo json_encode(["message" => "Phương thức không hợp lệ."]);
+    echo json_encode(["message" => "Invalid method."]);
     exit;
 }
 
@@ -94,10 +85,10 @@ if ($shared_note) {
 
         // Return the note data as JSON
         header("Content-Type: application/json");
-        echo json_encode(["message" => "✅ Truy cập thành công.", "note" => $note_data]);
+        echo json_encode(["message" => "✅ Access successful.", "note" => $note_data]);
     } else {
-        echo json_encode(["message" => "❌  Ghi chú không đtồn tại hoặc không thuộc quyền truy cập."]);
+        echo json_encode(["message" => "❌ Note does not exist or you don't have access."]);
     }
 } else {
-    echo json_encode(["message" => "❌ Mật khẩu không đúng."]);
+    echo json_encode(["message" => "❌ Incorrect password."]);
 }
