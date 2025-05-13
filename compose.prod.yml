@@ -1,0 +1,13 @@
+services:
+  backend:
+    build:
+      dockerfile: Dockerfile.prod
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        - API_URL=http://localhost:8080
+        - WS_URL=ws://localhost:4321
+    ports:
+      - 1234:80
