@@ -4,6 +4,7 @@ data/*
 backend/vendor
 backend/uploads/images/*
 !backend/uploads/images/.gitkeep
+!backend/uploads/images/682693a3931b2.jpg
 frontend/.parcel-cache
 frontend/dist
 frontend/node_modules

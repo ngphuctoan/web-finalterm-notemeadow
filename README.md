@@ -52,6 +52,12 @@ npm start
 
 After that, the app is now accessible at [localhost:1234](http://localhost:1234)!
 
+For demonstration purposes, you can login to a demo account with the following credentials:
+
+- **Email:** `demo@notemeadow.store`
+
+- **Password:** `12345678`
+
 ## Production
 
 To build the app for production:
