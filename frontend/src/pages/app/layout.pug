@@ -209,7 +209,7 @@ script.
 
             async changePassword({ current_password, new_password, confirm_password }) {
                 try {    
-                    const { data } = await axiosInstance.put(
+                    const { data } = await axiosInstance.post(
                         "/update_password.php", { current_password, new_password, confirm_password }
                     );
 

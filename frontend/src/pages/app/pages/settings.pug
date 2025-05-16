@@ -1,23 +1,5 @@
 extends ../layout
 
-//- script.
-//-   function switchTab(tab) {
-//-   // Reset all buttons
-//-   const tabs = document.querySelectorAll('.tab-btn');
-//-   tabs.forEach(button => {
-//-   button.classList.remove('bg-primary', 'text-white');
-//-   button.classList.add('hover:bg-gray-200');
-//-   });
-//-   // Hide all content
-//-   const contentTabs = document.querySelectorAll('.content-tab');
-//-   contentTabs.forEach(tabContent => tabContent.classList.add('hidden'));
-//-   // Show selected tab content and highlight the button
-//-   document.getElementById(`${tab}-tab`).classList.remove('hidden');
-//-   const activeButton = document.getElementById(`${tab}-btn`);
-//-   activeButton.classList.remove('hover:bg-gray-200');
-//-   activeButton.classList.add('bg-primary', 'text-white');
-//-   }
-
 block header-left
     a.btn-icon(type="button", x-ref="closeEditor", href="/")
         i.fa.fa-arrow-left
@@ -142,64 +124,3 @@ block content
                         )
                             i.fa.fa-moon
                             span.hidden.ms-4(class="sm:inline") Dark
-//- .bg-white.shadow-2xl.rounded-2xl.w-full.max-w-5xl.flex.overflow-hidden
-//-   // Sidebar
-//-   .bg-gray-50.p-6.space-y-4(class='w-1/4')
-//-     h2.text-2xl.font-bold.text-gray-800 Settings
-//-     ul.space-y-2
-//-       li
-//-         button#profile-btn.tab-btn.w-full.text-left.px-4.py-2.rounded-lg.bg-primary.text-white(onclick="switchTab('profile')") Profile
-//-       li
-//-         button#security-btn.tab-btn.w-full.text-left.px-4.py-2.rounded-lg(onclick="switchTab('security')" class='hover:bg-gray-200') Security
-//-       li
-//-         button#appearance-btn.tab-btn.w-full.text-left.px-4.py-2.rounded-lg(onclick="switchTab('appearance')" class='hover:bg-gray-200') Appearance
-//-   // Content
-//-   .p-8.space-y-6(class='w-3/4')
-//-     .flex.items-center.space-x-4
-//-       .w-20.h-20.bg-gray-200.rounded-full.flex.items-center.justify-center.text-3xl.font-bold.text-gray-600 K
-//-       div
-//-         p.text-lg.font-medium Ki&#x1EC7;t
-//-         p.text-sm.text-gray-500 kiet@example.com
-//-     // Profile Tab
-//-     #profile-tab.content-tab.space-y-6
-//-       form.grid.grid-cols-1.gap-6(class='md:grid-cols-2')
-//-         div
-//-           label.block.mb-1.font-medium Name
-//-           input.w-full.border.rounded-lg.p-2(type='text' placeholder='Kiệt')
-//-         div
-//-           label.block.mb-1.font-medium Email
-//-           input.w-full.border.rounded-lg.p-2(type='email' placeholder='kiet@example.com')
-//-         div
-//-           label.block.mb-1.font-medium Phone
-//-           input.w-full.border.rounded-lg.p-2(type='tel' placeholder='0123456789')
-//-         div
-//-           label.block.mb-1.font-medium Location
-//-           input.w-full.border.rounded-lg.p-2(type='text' placeholder='Ho Chi Minh City')
-//-     // Security Tab
-//-     #security-tab.content-tab.space-y-6.hidden
-//-       form.space-y-6
-//-         div
-//-           label.block.mb-1.font-medium Current Password
-//-           input.w-full.border.rounded-lg.p-2(type='password' placeholder='Current Password')
-//-         div
-//-           label.block.mb-1.font-medium New Password
-//-           input.w-full.border.rounded-lg.p-2(type='password' placeholder='New Password')
-//-         div
-//-           label.block.mb-1.font-medium Confirm New Password
-//-           input.w-full.border.rounded-lg.p-2(type='password' placeholder='Confirm New Password')
-//-     // Appearance Tab
-//-     #appearance-tab.content-tab.space-y-6.hidden
-//-       form.space-y-6
-//-         div
-//-           label.block.mb-1.font-medium Theme
-//-           select.w-full.border.rounded-lg.p-2
-//-             option(value='light') Light
-//-             option(value='dark') Dark
-//-         div
-//-           label.block.mb-1.font-medium Font Style
-//-           select.w-full.border.rounded-lg.p-2
-//-             option(value='sans-serif') Sans-serif
-//-             option(value='serif') Serif
-//-             option(value='monospace') Monospace
-//-     .pt-4
-//-       button.px-6.py-2.bg-primary.text-white.rounded-lg.transition(class='hover:bg-secondary') Save Changes
