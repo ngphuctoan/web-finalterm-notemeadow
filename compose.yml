@@ -17,10 +17,10 @@ services:
       - PMA_HOST=mysql
 
   y-websocket:
-    image: node:alpine
+    build:
+      context: ./y-websocket
     ports:
-      - 4321:1234
-    command: sh -c "npm i -g @y/websocket-server && y-websocket"
+      - 4321:4321
 
   backend:
     build:

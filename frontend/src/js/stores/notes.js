@@ -212,7 +212,10 @@ export default function () {
                 );
 
                 for (const { email, message } of data) {
-                    if (message === "Access permission has been updated.") {
+                    if (
+                        message === "Access permission has been updated." ||
+                        message === "Share email has been sent."
+                    ) {
                         notyf.success(`[${email}] ${message}`);
                     } else {
                         notyf.error(`[${email}] ${message}`);

@@ -91,7 +91,7 @@ if ($_SERVER["REQUEST_METHOD"] === "PUT") {
                 // Send email + record history
                 $token = encodeNumber($note_id, $key);
                 $note_link = "http://localhost:1234/#/edit/" . $note_id;
-                $url = "https://api.qrserver.com/v1/create-qr-code/?data=" . urlencode($note_link) . "&size=200x200";
+                $url = "https://quickchart.io/qr?size=200&text=" . urlencode($note_link);
                 $subject = "A note has been shared with you - $email_send";
                 $body = <<<EOD
                 <!DOCTYPE html>
