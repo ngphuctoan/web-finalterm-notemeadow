@@ -41,7 +41,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $resetLink = "$_ENV[CLIENT_URL]/#/reset/" . $token;
 
             // Gửi email với liên kết đặt lại mật khẩu
-            $subject = "Reset your Note password - $email";
+            $subject = "Reset your password";
             $message = <<<EOD
                 <!DOCTYPE html>
                 <html lang="en">

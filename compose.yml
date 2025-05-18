@@ -29,9 +29,7 @@ services:
       - 8080:80
     volumes:
       - ./backend/uploads:/var/www/html/uploads
+    env_file:
+      - .env
     environment:
       - CLIENT_URL=http://localhost:1234
-      - DB_HOST=mysql
-      - DB_NAME=notemeadow
-      - DB_USER=root
-      - DB_PASS=

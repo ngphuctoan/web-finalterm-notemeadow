@@ -7,8 +7,9 @@ set_cors_header();
 
 function sendActivationEmail($to, $user_name, $activation_token)
 {
-    $subject = "Verify your Note account";
-    $activation_link = "http://" . $_SERVER["HTTP_HOST"] . "/api/activate_account.php?token=" . $activation_token;
+    $subject = "Verify your account";
+    $protocol = !empty($_SERVER["HTTPS"]) && $_SERVER["HTTPS"] !== "off" ? "https://" : "http://";
+    $activation_link = "$protocol$_SERVER[HTTP_HOST]/api/activate_account.php?token=$activation_token";
 
     // Using heredoc for better readability
     $body = <<<EOD

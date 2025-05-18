@@ -7,7 +7,7 @@ services:
     build:
       context: ./frontend
       args:
-        - API_URL=http://backend
-        - WS_URL=ws://y-websocket:4321
+        - API_URL=${API_URL}
+        - WS_URL=${WS_URL}
     ports:
       - 1234:80

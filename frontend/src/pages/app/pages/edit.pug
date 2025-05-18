@@ -150,7 +150,7 @@ block script
         });
 
 block header-left
-    a.btn-icon(type="button", x-ref="closeEditor", href="/")
+    a.btn-icon(type="button", href="/")
         i.fa.fa-arrow-left
 
 block header-right
@@ -171,9 +171,11 @@ block header-right
             span.ms-2(x-text="$data[syncStatus].label")
 
 block content
+    //- HACK: Redirect to /refresh-editor/:id then back to /edit/:id to refresh
+    //- the page. Solves the issue of toolbar not working.
     #editor-container.flex-1.flex(
         x-data="editor",
-        @refresh-editor.window="note = $store.notes.get(note.id); createEditor()",
+        @refresh-editor.window="$router.navigate(`/refresh-editor/${$params.id}`)",
         @update-note.window.debounce.2s=`
             setSyncStatus("wait");
 

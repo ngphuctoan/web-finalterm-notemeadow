@@ -19,6 +19,7 @@ html(lang="en", x-data, :class="$store.theme")
     body.bg-gray-100(class="font-[Plus_Jakarta_Sans] dark:text-white dark:bg-gray-950")
         +x-route("/", "app/pages/home")
         +x-route("/edit/:id", "app/pages/edit")
+        +x-route("/refresh-editor/:id", "app/pages/refresh")
         +x-route("/settings", "app/pages/settings")
 
         each route in ["login", "register", "forgot"]

@@ -12,15 +12,15 @@ function sendEmail($to, $subject, $body)
     try {
         // Cấu hình SMTP
         $mail->isSMTP();
-        $mail->Host = "smtp.gmail.com";
+        $mail->Host = $_ENV["SMTP_HOST"];
         $mail->SMTPAuth = true;
-        $mail->Username = "quocdatforwork@gmail.com"; // Email của bạn
-        $mail->Password = "ddabeyoldairwpsl"; // Mật khẩu ứng dụng
+        $mail->Username = $_ENV["SMTP_EMAIL"]; // Email của bạn
+        $mail->Password = $_ENV["SMTP_PASS"]; // Mật khẩu ứng dụng
         $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
         $mail->Port = 587;
 
         // Người gửi & người nhận
-        $mail->setFrom("quocdatforwork@gmail.com", "Ghi chú");
+        $mail->setFrom($_ENV["SMTP_EMAIL"], "notemeadow");
         $mail->addAddress($to);
 
         // Nội dung email

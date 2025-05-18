@@ -1,0 +1,11 @@
+extends ../layout
+
+block header-left
+    a.btn-icon(type="button", href="/")
+        i.fa.fa-arrow-left
+
+block content
+    .flex-1.flex.justify-center.items-center(
+        x-init="setTimeout(() => $router.navigate(`/edit/${$params.id}`), 500)"
+    )
+        .spinner.scale-200

@@ -92,7 +92,7 @@ if ($_SERVER["REQUEST_METHOD"] === "PUT") {
                 $token = encodeNumber($note_id, $key);
                 $note_link = "http://localhost:1234/#/edit/" . $note_id;
                 $url = "https://quickchart.io/qr?size=200&text=" . urlencode($note_link);
-                $subject = "A note has been shared with you - $email_send";
+                $subject = "A note has been shared by $email_send";
                 $body = <<<EOD
                 <!DOCTYPE html>
                 <html lang="en">
@@ -146,7 +146,7 @@ if ($_SERVER["REQUEST_METHOD"] === "PUT") {
 
                 if (sendEmail($recipient_email, $subject, $body)) {
                     $historyStmt = $pdo->prepare("INSERT INTO note_history (note_id, user_id, action) VALUES (?, ?, ?)");
-                    $action = "Note has been shared with $recipient_email";
+                    $action = "A note has been shared by $recipient_email";
                     $historyStmt->execute([$note_id, $shared_by, $action]);
 
                     $responses[] = ["email" => $recipient_email, "message" => "Share email has been sent."];
