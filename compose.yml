@@ -32,5 +32,3 @@ services:
       - ./backend/uploads:/var/www/html/uploads
     env_file:
       - .env
-    environment:
-      - CLIENT_URL=http://localhost:1234

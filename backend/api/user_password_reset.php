@@ -38,7 +38,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $protocol = isset($_SERVER["HTTP_HOST"]) && $_SERVER["HTTP_HOST"] === "on" ? "https" : "http";
 
             // Tạo liên kết đặt lại mật khẩu
-            $resetLink = "$_ENV[CLIENT_URL]/#/reset/" . $token;
+            $resetLink = ($_ENV["CLIENT_URL"] ?? "http://localhost:1234") . "/#/reset/$token";
 
             // Gửi email với liên kết đặt lại mật khẩu
             $subject = "Reset your password";
